@@ -114,7 +114,7 @@ def run_customized_training(strategy,
     
     # VErificando camadas treinaveis ante
     
-    logging.info('\n##core_model Layers _get_pretrain_model ##\n')
+    logging.info('\n##_get_pretrain_model ##\n')
     logging.info(core_model.layers)
     logging.info(core_model.layers[0])
     logging.info(core_model.layers[0].name)    
@@ -124,10 +124,14 @@ def run_customized_training(strategy,
     pretrain_model.summary()
     logging.info('\n########\n')
     core_model.trainable = False
-    
+    pretrain_model.trainable = False
     # VErificando camadas treinaveis depois
     logging.info('\n##core_model Layers After Freeze##\n')
     core_model.summary()
+    logging.info('\n##pretrain_model Layers After Freeze##\n')
+    pretrain_model.summary()
+    logging.info('\n##_get_pretrain_model##\n')
+    
     return pretrain_model, core_model
 
   trained_model = model_training_utils.run_customized_training_loop(
