@@ -283,7 +283,7 @@ def run_customized_training_loop(
       logging.info('\n##Model (complete) Before Freeze##\n')
       model.summary()
 
-      model.trainable = False
+      
       for layer in model.layers:
         if 'bert_pretrainer' in layer.name:
           logging.info(f'model: {layer.name}')
