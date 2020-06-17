@@ -287,7 +287,8 @@ def run_customized_training_loop(
       for layer in model.layers:
         if 'bert_pretrainer' in layer.name:
           logging.info(f'model: {layer.name}')
-          for sub_layer in layer:
+          bert_pretrainer_layer = layer
+          for sub_layer in bert_pretrainer_layer.layers:
             logging.info(f'sub_layer: {sub_layer.name}')
             #sub_layer.trainable=False
           #layer.trainable=False
