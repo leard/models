@@ -259,20 +259,21 @@ def run_customized_training_loop(
         logging.info('\n##Submodel Before##\n')
         #sub_model.summary()
         logging.info('\n##Submodel Weights##\n')
-        logging.info(sub_model.layers[3].get_weights()[0])
+        logging.info(sub_model.layers[3].get_weights()[0]) #position_embedding
         
         checkpoint = tf.train.Checkpoint(model=sub_model)
         checkpoint.restore(init_checkpoint).assert_existing_objects_matched()
         logging.info('\n##Submodel After##\n')
         sub_model.summary()
         logging.info('\n##Submodel Weight Embedding##\n')
-        logging.info(sub_model.layers[3].get_weights()[0])
+        logging.info(sub_model.layers[3].get_weights()[0]) #position_embedding
         logging.info('Loading from checkpoint file completed')
       else:
         logging.info('There is not a checkpoint!')
     ############################################################################
     if freeze_embeddings and freeze_layers:
-      raise ValueError('All layers was freezed')
+      #raise ValueError('All layers was freezed')
+      pass
 
     if freeze_embeddings:
       # Freeze embedding layers, except embedding layers
