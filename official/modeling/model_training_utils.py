@@ -241,28 +241,30 @@ def run_customized_training_loop(
 
     optimizer = model.optimizer
 
-    if init_checkpoint:
-      logging.info(
+    if init_checkpoint:      
+      #########################################################################
+      checkpoint_file_path = tf.train.latest_checkpoint(checkpoint_dir=init_checkpoint)
+      logging.info('\n##CHECKPOINT PATH##\n')
+      logging.info(checkpoint_file_path)
+      if checkpoint_file_path:
+        logging.info(
           'Checkpoint file %s found and restoring from '
           'initial checkpoint for core model.', init_checkpoint)
+        
+        logging.info('\n##Submodel Before##\n')
+        sub_model.summary()
+        logging.info('\n##Submodel Weights##\n')
+        logging.info(sub_model.layers[1].get_weights()[0])
+        
+        checkpoint = tf.train.Checkpoint(model=sub_model)
+        checkpoint.restore(init_checkpoint).assert_existing_objects_matched()
+        logging.info('\n##Submodel After##\n')
+        sub_model.summary()
+        logging.info('\n##Submodel Weights##\n')
+        logging.info(sub_model.layers[1].get_weights()[0])
+        logging.info('Loading from checkpoint file completed')
       #########################################################################
-      logging.info('\n##Submodel Before##\n')
-      sub_model.summary()
-      logging.info('\n##Submodel Weights##\n')
-      logging.info(sub_model.layers[1].get_weights()[0])
       
-      checkpoint_dir_path = tf.train.latest_checkpoint(checkpoint_dir=init_checkpoint)
-      logging.info('\n##CHECKPOINT PATH##\n')
-      logging.info(checkpoint_dir_path)
-      
-      checkpoint = tf.train.Checkpoint(model=sub_model)
-      checkpoint.restore(init_checkpoint).assert_existing_objects_matched()
-      logging.info('\n##Submodel After##\n')
-      sub_model.summary()
-      logging.info('\n##Submodel Weights##\n')
-      logging.info(sub_model.layers[1].get_weights()[0])
-      #########################################################################
-      logging.info('Loading from checkpoint file completed')
 
     train_loss_metric = tf.keras.metrics.Mean(
         'training_loss', dtype=tf.float32)
