@@ -138,7 +138,7 @@ def run_customized_training(strategy,
       epochs=epochs,
       sub_model_export_name='pretrained/bert_model')
   #Verificando final
-  core_model.summary()
+  trained_model.summary()
   
   return trained_model
 
