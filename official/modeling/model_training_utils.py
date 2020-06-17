@@ -301,7 +301,7 @@ def run_customized_training_loop(
               #   logging.info(f'masked_lm_sub_layer: {masked_lm_sub_layer.name}')
             elif 'classification' in bert_sub_layer.name:
               classification_layer = bert_sub_layer.layers
-              for classification_sub_layer in classification_sub_layer:
+              for classification_sub_layer in classification_layer:
                 logging.info(f'classification_sub_layer: {classification_sub_layer}')
 
             #sub_layer.trainable=False
