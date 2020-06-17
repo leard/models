@@ -283,7 +283,7 @@ def run_customized_training_loop(
       logging.info('\n##Model (complete) Before Freeze##\n')
       model.summary()
 
-      
+
       for layer in model.layers:
         if 'bert_pretrainer' in layer.name:
           logging.info(f'model: {layer.name}')
@@ -298,7 +298,7 @@ def run_customized_training_loop(
         if 'embedding' in layer.name:
           logging.info(f'sub_model: {layer.name}')
           layer.trainable=True
-
+      sub_model.layers[3].trainable=True
       logging.info('\n##Submodel After Freeze##\n')
       sub_model.summary()
       
