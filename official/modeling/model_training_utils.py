@@ -257,16 +257,16 @@ def run_customized_training_loop(
           'initial checkpoint for core model.', init_checkpoint)
         
         logging.info('\n##Submodel Before##\n')
-        sub_model.summary()
+        #sub_model.summary()
         logging.info('\n##Submodel Weights##\n')
-        logging.info(sub_model.layers[1].get_weights()[0])
+        logging.info(sub_model.layers[3].get_weights()[0])
         
         checkpoint = tf.train.Checkpoint(model=sub_model)
         checkpoint.restore(init_checkpoint).assert_existing_objects_matched()
         logging.info('\n##Submodel After##\n')
-        sub_model.summary()
+        #sub_model.summary()
         logging.info('\n##Submodel Weights##\n')
-        logging.info(sub_model.layers[1].get_weights()[0])
+        logging.info(sub_model.layers[3].get_weights()[0])
         logging.info('Loading from checkpoint file completed')
       else:
         logging.info('There is not a checkpoint!')
@@ -277,13 +277,18 @@ def run_customized_training_loop(
     
     if freeze_layers:
       logging.info('Freezing Layers setted')
-      logging.info('Freezing Layers completed')
+      
       # Freeze all the layers, except embedding layers (ALL for now)
+      logging.info('\n##Submodel Before Freeze##\n')
+      sub_model.summary()
       for layer in sub_model.layers:
         if 'embedding' not in layer.name:
           layer.trainable=False
 #       for layer in model.layers:
 #         layer.trainable=False
+      logging.info('\n##Submodel After Freeze##\n')
+      sub_model.summary()
+      logging.info('Freezing Layers completed')
 
     train_loss_metric = tf.keras.metrics.Mean(
         'training_loss', dtype=tf.float32)
