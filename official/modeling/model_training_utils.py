@@ -117,7 +117,9 @@ def run_customized_training_loop(
     sub_model_export_name=None,
     explicit_allreduce=False,
     pre_allreduce_callbacks=None,
-    post_allreduce_callbacks=None):
+    post_allreduce_callbacks=None,
+    freeze_embeddings=None,
+    freeze_layers=None):
   """Run BERT pretrain model training using low-level API.
 
   Arguments:
@@ -180,6 +182,8 @@ def run_customized_training_loop(
         functions will be invoked in the list order and right before gradients
         are applied to variables for updates. Default is no callbacks. Only used
         when explicit_allreduce=True.
+      freeze_embeddings: TODO
+      freeze_layers: TODO
 
   Returns:
       Trained model.
@@ -267,7 +271,11 @@ def run_customized_training_loop(
       else:
         logging.info('There is not a checkpoint!')
       #########################################################################
-      
+    if freeze_embeddings:
+      pass
+    
+    if freeze_layers:
+      pass
 
     train_loss_metric = tf.keras.metrics.Mean(
         'training_loss', dtype=tf.float32)
