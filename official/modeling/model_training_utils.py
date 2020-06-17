@@ -294,14 +294,14 @@ def run_customized_training_loop(
               transformer_encoder_layer = bert_sub_layer
               for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
                 if 'embedding' not in transformer_sub_layer.name:
-                  #model.layers[i].layers[j].layers[k].trainable = False
+                  model.layers[i].layers[j].layers[k].trainable = False
                   #transformer_sub_layer.trainable = False
                   logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
             elif 'masked_lm' in bert_sub_layer.name:
               model.layers[i].layers[j].trainable = False
               logging.info(f'masked_lm: {bert_sub_layer.name}')
             elif 'classification' in bert_sub_layer.name:
-              model.layers[i].layers[j].trainable = False #Quebra da TPU
+              model.layers[i].layers[j].trainable = False
               classification_layer = bert_sub_layer.layers
               for classification_sub_layer in classification_layer:
                 logging.info(f'classification_sub_layer: {classification_sub_layer.name}')
