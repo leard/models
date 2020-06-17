@@ -295,9 +295,10 @@ def run_customized_training_loop(
               for transformer_sub_layer in transformer_encoder_layer:
                 logging.info(f'transformer_sub_layer: {transformer_sub_layer}')
             elif 'masked_lm' in bert_sub_layer.name:
-              masked_lm_layer = bert_sub_layer.layers
-              for masked_lm_sub_layer in masked_lm_layer.layers:
-                logging.info(f'masked_lm_sub_layer: {masked_lm_sub_layer.name}')
+              pass
+              # masked_lm_layer = bert_sub_layer.layers
+              # for masked_lm_sub_layer in masked_lm_layer.layers:
+              #   logging.info(f'masked_lm_sub_layer: {masked_lm_sub_layer.name}')
             elif 'classification' in bert_sub_layer.name:
               classification_layer = bert_sub_layer.layers
               for classification_sub_layer in classification_layer.layers:
