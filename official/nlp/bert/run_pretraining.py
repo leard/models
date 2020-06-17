@@ -114,15 +114,15 @@ def run_customized_training(strategy,
     
     # VErificando camadas treinaveis ante
     
-    logging.info('##Layers##')
+    logging.info('##Layers _get_pretrain_model ##')
     logging.info(core_model.layers)
     logging.info(core_model.layers[0])
-    logging.info(core_model.layers[1])
-    logging.info('##Layers Before Freeze##')
+    logging.info(core_model.layers[0].name)
+    logging.info('\n##Layers Before Freeze##\n')
     core_model.summary()
     core_model.trainable = False
     # VErificando camadas treinaveis depois
-    logging.info('##Layers After Freeze##')
+    logging.info('\n##Layers After Freeze##\n')
     core_model.summary()
     return pretrain_model, core_model
 
@@ -137,7 +137,7 @@ def run_customized_training(strategy,
       steps_per_loop=steps_per_loop,
       epochs=epochs,
       sub_model_export_name='pretrained/bert_model')
-  #Verificando final
+  logging.info('\n##Layers at End##\n')
   trained_model.summary()
   
   return trained_model
