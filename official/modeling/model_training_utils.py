@@ -247,7 +247,7 @@ def run_customized_training_loop(
 #         not tf.io.gfile.isdir(init_checkpoint)
       if init_checkpoint:
         logging.info('\n##CHECKPOINT PATH##\n')
-        logging.info(checkpoint_file_path)
+        logging.info(init_checkpoint)
         logging.info(
           'Checkpoint file %s found and restoring from '
           'initial checkpoint for core model.', init_checkpoint)
