@@ -293,7 +293,7 @@ def run_customized_training_loop(
             if 'transformer_encoder' in bert_sub_layer.name:
               transformer_encoder_layer = bert_sub_layer.layers
               for transformer_sub_layer in transformer_encoder_layer:
-                logging.info(f'transformer_sub_layer: {transformer_sub_layer.layers}')
+                logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
             elif 'masked_lm' in bert_sub_layer.name:
               model.layers[i].layers[j].trainable = False
             elif 'classification' in bert_sub_layer.name:
