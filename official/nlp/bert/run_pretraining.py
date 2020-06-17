@@ -144,6 +144,7 @@ def run_customized_training(strategy,
       steps_per_epoch=steps_per_epoch,
       steps_per_loop=steps_per_loop,
       epochs=epochs,
+      init_checkpoint=FLAGS.init_checkpoint,
       sub_model_export_name='pretrained/bert_model')
   logging.info('\n##Layers at End##\n')
   trained_model.summary()
