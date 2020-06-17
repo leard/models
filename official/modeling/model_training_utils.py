@@ -245,10 +245,15 @@ def run_customized_training_loop(
       logging.info(
           'Checkpoint file %s found and restoring from '
           'initial checkpoint for core model.', init_checkpoint)
+      #########################################################################
       logging.info('\n##Submodel Before##\n')
       sub_model.summary()
       logging.info('\n##Submodel Weights##\n')
       logging.info(sub_model.layers[1].get_weights()[0])
+      
+      checkpoint_dir_path = tf.train.latest_checkpoint(checkpoint_dir=init_checkpoint)
+      logging.info('\n##CHECKPOINT PATH##\n')
+      logging.info(checkpoint_dir_path)
       
       checkpoint = tf.train.Checkpoint(model=sub_model)
       checkpoint.restore(init_checkpoint).assert_existing_objects_matched()
@@ -256,7 +261,7 @@ def run_customized_training_loop(
       sub_model.summary()
       logging.info('\n##Submodel Weights##\n')
       logging.info(sub_model.layers[1].get_weights()[0])
-      
+      #########################################################################
       logging.info('Loading from checkpoint file completed')
 
     train_loss_metric = tf.keras.metrics.Mean(
