@@ -287,6 +287,9 @@ def run_customized_training_loop(
       for layer in model.layers:
         if 'bert_pretrainer' in layer.name:
           logging.info(f'model: {layer.name}')
+          for sub_layer in layer:
+            logging.info(f'sub_layer: {sub_layer.name}')
+            #sub_layer.trainable=False
           #layer.trainable=False
       
       logging.info('\n##Model (complete) After Freeze, Before Submodel##\n')
