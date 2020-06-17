@@ -284,11 +284,11 @@ def run_customized_training_loop(
       model.summary()
 
 
-      for layer in model.layers:
+      for i, layer in enumerate(model.layers):
         if 'bert_pretrainer' in layer.name:
           logging.info(f'model: {layer.name}')
           bert_pretrainer_layer = layer
-          for bert_sub_layer in bert_pretrainer_layer.layers:
+          for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
             logging.info(f'bert_sub_layer: {bert_sub_layer.name}')
             if 'transformer_encoder' in bert_sub_layer.name:
               transformer_encoder_layer = bert_sub_layer.layers
@@ -300,7 +300,7 @@ def run_customized_training_loop(
               # for masked_lm_sub_layer in masked_lm_layer.layers:
               #   logging.info(f'masked_lm_sub_layer: {masked_lm_sub_layer.name}')
             elif 'classification' in bert_sub_layer.name:
-              bert_sub_layer.layers.trainable = False
+              model.layers[i].layers[j].trainable = False
               classification_layer = bert_sub_layer.layers
               for classification_sub_layer in classification_layer:
                 logging.info(f'classification_sub_layer: {classification_sub_layer}')
