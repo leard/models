@@ -156,7 +156,10 @@ def run_customized_training(strategy,
       freeze_layers=freeze_layers)
   logging.info('\n##Layers at End##\n')
   trained_model.summary()
-  logging.info(trained_model.layers[4].layers[1].name)
+  logging.info('\n##Layers of BERT##\n')
+  logging.info(trained_model.layers[4].summary())
+  nucleo_model = trained_model.layers[4]
+  logging.info(nucleo_model.layers[1].name)
   #.get_weights()[0]
   
   return trained_model
