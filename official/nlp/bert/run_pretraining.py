@@ -165,16 +165,16 @@ def run_customized_training(strategy,
   
   logging.info('\n##Layers of Embedding##\n')
   logging.info('#####word_embeddings####')
-  logging.info(transformer_model[1].get_weights()[0])
+  logging.info(transformer_model[1])
   
-  logging.info('#####position_embedding####')
-  logging.info(transformer_model[3].get_weights()[0])
+#   logging.info('#####position_embedding####')
+#   logging.info(transformer_model[3].get_weights()[0])
   
-  logging.info('#####type_embeddings####')
-  logging.info(transformer_model[4].get_weights()[0])
+#   logging.info('#####type_embeddings####')
+#   logging.info(transformer_model[4].get_weights()[0])
   
-  logging.info('#####embeddings/layer_norm (LayerNor####')
-  logging.info(transformer_model[6].get_weights()[0])
+#   logging.info('#####embeddings/layer_norm (LayerNor####')
+#   logging.info(transformer_model[6].get_weights()[0])
   logging.info('\n##Weights of Embedding##\n')
   logging.info('\n#########\n')
   
