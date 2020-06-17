@@ -113,9 +113,16 @@ def run_customized_training(strategy,
         use_graph_rewrite=common_flags.use_graph_rewrite())
     
     # VErificando camadas treinaveis ante
+    
+    logging.info('##Layers##')
+    logging.info(core_model.layers)
+    logging.info(core_model.layers[0])
+    logging.info(core_model.layers[1])
+    logging.info('##Layers Before Freeze##')
     core_model.summary()
     core_model.trainable = False
     # VErificando camadas treinaveis depois
+    logging.info('##Layers After Freeze##')
     core_model.summary()
     return pretrain_model, core_model
 
