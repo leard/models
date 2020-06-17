@@ -271,62 +271,64 @@ def run_customized_training_loop(
       else:
         logging.info('There is not a checkpoint!')
     ############################################################################
-    if freeze_embeddings:
-      logging.info('Freezing Embedding Layers setted')
-      logging.info('Freezing Embedding Layers completed')
-    
-    if freeze_layers:
-      logging.info('Freezing Layers setted')
-      
-      # Freeze all the layers, except embedding layers (ALL for now)
-      
-      logging.info('\n##Model (complete) Before Freeze##\n')
-      model.summary()
 
+    if freeze_embeddings:
+      # Freeze embedding layers, except embedding layers
+      logging.info('#' * 80)
+      logging.info('\n##Model before embeddings be freezed##\n')
+      model.summary()
 
       for i, layer in enumerate(model.layers):
         if 'bert_pretrainer' in layer.name:
-          logging.info(f'model: {layer.name}')
           bert_pretrainer_layer = layer
+          logging.info('#bert_pretrainer layers freezed')
           for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
-            logging.info(f'bert_sub_layer: {bert_sub_layer.name}')
+            logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
             if 'transformer_encoder' in bert_sub_layer.name:
               transformer_encoder_layer = bert_sub_layer
+              logging.info('##transformer_encoder layers freezed')
+              for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
+                if 'embedding' in transformer_sub_layer.name:
+                  model.layers[i].layers[j].layers[k].trainable = False
+                  logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
+      model.summary()
+      logging.info('\n##Embeddings freezed##\n')
+      logging.info('#' * 80)
+    
+    if freeze_layers:
+      # Freeze all the layers, except embedding layers
+      logging.info('#' * 80)
+      logging.info('\n##Model before layers be freezed##\n')
+      model.summary()
+
+      for i, layer in enumerate(model.layers):
+        if 'bert_pretrainer' in layer.name:
+          bert_pretrainer_layer = layer
+          logging.info('#bert_pretrainer layers freezed')
+          for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
+            logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
+            if 'transformer_encoder' in bert_sub_layer.name:
+              transformer_encoder_layer = bert_sub_layer
+              logging.info('##transformer_encoder layers freezed')
               for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
                 if 'embedding' not in transformer_sub_layer.name:
                   model.layers[i].layers[j].layers[k].trainable = False
-                  #transformer_sub_layer.trainable = False
                   logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
             elif 'masked_lm' in bert_sub_layer.name:
+              logging.info('##masked_lm layers freezed')
               model.layers[i].layers[j].trainable = False
-              logging.info(f'masked_lm: {bert_sub_layer.name}')
             elif 'classification' in bert_sub_layer.name:
               model.layers[i].layers[j].trainable = False
               classification_layer = bert_sub_layer.layers
+              logging.info('##classification layers freezed')
               for classification_sub_layer in classification_layer:
                 logging.info(f'classification_sub_layer: {classification_sub_layer.name}')
+      model.summary()
+      logging.info('\n##Layers Freezed##\n')
+      logging.info('#' * 80)
 
-            #sub_layer.trainable=False
-          #layer.trainable=False
-      
-      logging.info('\n##Model (complete) After Freeze, Before Submodel##\n')
-      # model.summary()
-      
-      # logging.info('\n##Submodel Before Freeze##\n')
-      # sub_model.summary()
-      # for layer in sub_model.layers:
-      #   if 'embedding' in layer.name:
-      #     logging.info(f'sub_model: {layer.name}')
-      #     layer.trainable=True
-      #model.layers[4].layers[3].trainable=False
-      # logging.info('\n##Submodel After Freeze##\n')
-      # sub_model.summary()
-      
-      # logging.info('\n##Model (complete) After Freeze, After Submodel##\n')
-      model.summary()      
-    
-    
-      logging.info('Freezing Layers completed')
+    if freeze_embeddings and freeze_layers:
+      logging.warning('All layers was freezed')
     ###################################################################################
     train_loss_metric = tf.keras.metrics.Mean(
         'training_loss', dtype=tf.float32)
