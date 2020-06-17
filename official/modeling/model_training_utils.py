@@ -292,8 +292,8 @@ def run_customized_training_loop(
             logging.info(f'bert_sub_layer: {bert_sub_layer.name}')
             if 'transformer_encoder' in bert_sub_layer.name:
               transformer_encoder_layer = bert_sub_layer.layers
-              for transformer_sub_layer in transformer_encoder_layer.layers:
-                logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
+              for transformer_sub_layer in transformer_encoder_layer:
+                logging.info(f'transformer_sub_layer: {transformer_sub_layer}')
             elif 'masked_lm' in bert_sub_layer.name:
               masked_lm_layer = bert_sub_layer.layers
               for masked_lm_sub_layer in masked_lm_layer.layers:
