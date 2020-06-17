@@ -298,9 +298,8 @@ def run_customized_training_loop(
                   #transformer_sub_layer.trainable = False
                   logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
             elif 'masked_lm' in bert_sub_layer.name:
-              masked_lm_layer = bert_sub_layer.layers
               #model.layers[i].layers[j].trainable = False
-              logging.info(f'masked_lm: {masked_lm_layer.name}')
+              logging.info(f'masked_lm: {bert_sub_layer.name}')
             elif 'classification' in bert_sub_layer.name:
               model.layers[i].layers[j].trainable = False
               classification_layer = bert_sub_layer.layers
