@@ -298,10 +298,10 @@ def run_customized_training_loop(
                   #transformer_sub_layer.trainable = False
                   logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
             elif 'masked_lm' in bert_sub_layer.name:
-              #model.layers[i].layers[j].trainable = False
+              model.layers[i].layers[j].trainable = False
               logging.info(f'masked_lm: {bert_sub_layer.name}')
             elif 'classification' in bert_sub_layer.name:
-              #model.layers[i].layers[j].trainable = False
+              #model.layers[i].layers[j].trainable = False #Quebra da TPU
               classification_layer = bert_sub_layer.layers
               for classification_sub_layer in classification_layer:
                 logging.info(f'classification_sub_layer: {classification_sub_layer.name}')
