@@ -278,6 +278,11 @@ def run_customized_training_loop(
     if freeze_layers:
       logging.info('Freezing Layers setted')
       logging.info('Freezing Layers completed')
+      # Freeze all the layers, except embedding layers (ALL for now)
+      for layer in sub_model.layers:
+        layer.trainable=False
+      for layer in model.layers:
+        layer.trainable=False
 
     train_loss_metric = tf.keras.metrics.Mean(
         'training_loss', dtype=tf.float32)
