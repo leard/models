@@ -157,9 +157,10 @@ def run_customized_training(strategy,
   logging.info('\n##Layers at End##\n')
   trained_model.summary()
   logging.info('\n##Layers of BERT##\n')
-  logging.info(trained_model.layers[4].summary())
   nucleo_model = trained_model.layers[4]
-  logging.info(nucleo_model.layers[1].name)
+  logging.info(nucleo_model.summary())
+  
+  logging.info(nucleo_model.layers[3].summary())
   #.get_weights()[0]
   
   return trained_model
