@@ -293,12 +293,9 @@ def run_customized_training_loop(
             if 'transformer_encoder' in bert_sub_layer.name:
               transformer_encoder_layer = bert_sub_layer.layers
               for transformer_sub_layer in transformer_encoder_layer:
-                logging.info(f'transformer_sub_layer: {transformer_sub_layer}')
+                logging.info(f'transformer_sub_layer: {transformer_sub_layer.layers}')
             elif 'masked_lm' in bert_sub_layer.name:
-              pass
-              # masked_lm_layer = bert_sub_layer.layers
-              # for masked_lm_sub_layer in masked_lm_layer.layers:
-              #   logging.info(f'masked_lm_sub_layer: {masked_lm_sub_layer.name}')
+              model.layers[i].layers[j].trainable = False
             elif 'classification' in bert_sub_layer.name:
               model.layers[i].layers[j].trainable = False
               classification_layer = bert_sub_layer.layers
@@ -317,7 +314,7 @@ def run_customized_training_loop(
       #   if 'embedding' in layer.name:
       #     logging.info(f'sub_model: {layer.name}')
       #     layer.trainable=True
-      model.layers[4].layers[3].trainable=False
+      #model.layers[4].layers[3].trainable=False
       # logging.info('\n##Submodel After Freeze##\n')
       # sub_model.summary()
       
