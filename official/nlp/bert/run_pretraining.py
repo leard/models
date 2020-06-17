@@ -165,7 +165,7 @@ def run_customized_training(strategy,
   
   logging.info('\n##Layers of Embedding##\n')
   logging.info('#####word_embeddings####')
-  logging.info(transformer_model.get_weights()[0])
+  logging.info(transformer_model.get_weights().shape)
   
 #   logging.info('#####position_embedding####')
 #   logging.info(transformer_model[3].get_weights()[0])
