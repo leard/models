@@ -48,9 +48,9 @@ flags.DEFINE_integer('num_steps_per_epoch', 1000,
                      'Total number of training steps to run per epoch.')
 flags.DEFINE_float('warmup_steps', 10000,
                    'Warmup steps for Adam weight decay optimizer.')
-flags.DEFINE_bool('freeze_embeddings', None, 'Freeze Embedding Layers')
+flags.DEFINE_bool('freeze_embeddings', False, 'Freeze Embedding Layers')
 
-flags.DEFINE_bool('freeze_layers', None, 'Freeze Layers, excluding embedding layers')
+flags.DEFINE_bool('freeze_layers', False, 'Freeze Layers, excluding embedding layers')
 
 common_flags.define_common_bert_flags()
 common_flags.define_gin_flags()
