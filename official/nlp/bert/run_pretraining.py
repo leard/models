@@ -112,8 +112,10 @@ def run_customized_training(strategy,
         use_float16=common_flags.use_float16(),
         use_graph_rewrite=common_flags.use_graph_rewrite())
     
+    # VErificando camadas treinaveis ante
+    core_model.summary()
     core_model.trainable = False
-    # Let's take a look at the base model architecture
+    # VErificando camadas treinaveis depois
     core_model.summary()
     return pretrain_model, core_model
 
@@ -128,7 +130,9 @@ def run_customized_training(strategy,
       steps_per_loop=steps_per_loop,
       epochs=epochs,
       sub_model_export_name='pretrained/bert_model')
-
+  #Verificando final
+  core_model.summary()
+  
   return trained_model
 
 
