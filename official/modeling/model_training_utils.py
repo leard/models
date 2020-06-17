@@ -272,10 +272,12 @@ def run_customized_training_loop(
         logging.info('There is not a checkpoint!')
       #########################################################################
     if freeze_embeddings:
-      pass
+      logging.info('Freezing Embedding Layers setted')
+      logging.info('Freezing Embedding Layers completed')
     
     if freeze_layers:
-      pass
+      logging.info('Freezing Layers setted')
+      logging.info('Freezing Layers completed')
 
     train_loss_metric = tf.keras.metrics.Mean(
         'training_loss', dtype=tf.float32)
