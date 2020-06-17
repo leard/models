@@ -111,6 +111,10 @@ def run_customized_training(strategy,
         optimizer,
         use_float16=common_flags.use_float16(),
         use_graph_rewrite=common_flags.use_graph_rewrite())
+    
+    core_model.trainable = False
+    # Let's take a look at the base model architecture
+    core_model.summary()
     return pretrain_model, core_model
 
   trained_model = model_training_utils.run_customized_training_loop(
