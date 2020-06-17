@@ -48,6 +48,9 @@ flags.DEFINE_integer('num_steps_per_epoch', 1000,
                      'Total number of training steps to run per epoch.')
 flags.DEFINE_float('warmup_steps', 10000,
                    'Warmup steps for Adam weight decay optimizer.')
+flags.DEFINE_bool('freeze_embeddings', None, 'Freeze Embedding Layers')
+
+flags.DEFINE_bool('freeze_layers', None, 'Freeze Layers, excluding embedding layers')
 
 common_flags.define_common_bert_flags()
 common_flags.define_gin_flags()
@@ -94,7 +97,10 @@ def run_customized_training(strategy,
                             initial_lr,
                             warmup_steps,
                             input_files,
-                            train_batch_size):
+                            train_batch_size,
+                            init_checkpoint,
+                            freeze_embeddings,
+                            freeze_layers):
   """Run BERT pretrain model training using low-level API."""
 
   train_input_fn = get_pretrain_dataset_fn(input_files, max_seq_length,
@@ -144,8 +150,10 @@ def run_customized_training(strategy,
       steps_per_epoch=steps_per_epoch,
       steps_per_loop=steps_per_loop,
       epochs=epochs,
-      init_checkpoint=FLAGS.init_checkpoint,
-      sub_model_export_name='pretrained/bert_model')
+      init_checkpoint=init_checkpoint,
+      sub_model_export_name='pretrained/bert_model',
+      freeze_embeddings=freeze_embeddings,
+      freeze_layers=freeze_layers)
   logging.info('\n##Layers at End##\n')
   trained_model.summary()
   logging.info(trained_model.layers[4].get_weights()[0])
@@ -178,7 +186,10 @@ def run_bert_pretrain(strategy):
       FLAGS.learning_rate,
       FLAGS.warmup_steps,
       FLAGS.input_files,
-      FLAGS.train_batch_size)
+      FLAGS.train_batch_size,
+      FLAGS.init_checkpoint,
+      FLAGS.freeze_embeddings,
+      FLAGS.freeze_layers)
 
 
 def main(_):
