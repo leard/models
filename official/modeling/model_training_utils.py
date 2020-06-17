@@ -290,19 +290,19 @@ def run_customized_training_loop(
           #layer.trainable=False
       
       logging.info('\n##Model (complete) After Freeze, Before Submodel##\n')
-      model.summary()
+      # model.summary()
       
-      logging.info('\n##Submodel Before Freeze##\n')
-      sub_model.summary()
-      for layer in sub_model.layers:
-        if 'embedding' in layer.name:
-          logging.info(f'sub_model: {layer.name}')
-          layer.trainable=True
-      sub_model.layers[3].trainable=True
-      logging.info('\n##Submodel After Freeze##\n')
-      sub_model.summary()
+      # logging.info('\n##Submodel Before Freeze##\n')
+      # sub_model.summary()
+      # for layer in sub_model.layers:
+      #   if 'embedding' in layer.name:
+      #     logging.info(f'sub_model: {layer.name}')
+      #     layer.trainable=True
+      model.layers[4].layers[3].trainable=True
+      # logging.info('\n##Submodel After Freeze##\n')
+      # sub_model.summary()
       
-      logging.info('\n##Model (complete) After Freeze, After Submodel##\n')
+      # logging.info('\n##Model (complete) After Freeze, After Submodel##\n')
       model.summary()      
     
     
