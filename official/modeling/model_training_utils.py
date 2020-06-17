@@ -282,10 +282,11 @@ def run_customized_training_loop(
       
       logging.info('\n##Model (complete) Before Freeze##\n')
       model.summary()
-      
-      for layer in model.layers:
-        logging.info(f'model: {layer.name}')
-        layer.trainable=False
+
+      model.trainable = False
+      # for layer in model.layers:
+      #   logging.info(f'model: {layer.name}')
+      #   layer.trainable=False
       
       logging.info('\n##Model (complete) After Freeze, Before Submodel##\n')
       model.summary()
