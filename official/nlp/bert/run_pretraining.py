@@ -159,9 +159,24 @@ def run_customized_training(strategy,
   logging.info('\n##Layers of BERT##\n')
   nucleo_model = trained_model.layers[4]
   logging.info(nucleo_model.summary())
+  logging.info('\n##Layers of TRANSFORMER##\n')
+  transformer_model=nucleo_model.layers[3]
+  logging.info(transformer_model.summary())
   
-  logging.info(nucleo_model.layers[3].summary())
-  #.get_weights()[0]
+  logging.info('\n##Layers of Embedding##\n')
+  logging.info('#####word_embeddings####')
+  logging.info(transformer_model[1].get_weights()[0])
+  
+  logging.info('#####position_embedding####')
+  logging.info(transformer_model[3].get_weights()[0])
+  
+  logging.info('#####type_embeddings####')
+  logging.info(transformer_model[4].get_weights()[0])
+  
+  logging.info('#####embeddings/layer_norm (LayerNor####')
+  logging.info(transformer_model[6].get_weights()[0])
+  logging.info('\n##Weights of Embedding##\n')
+  logging.info('\n#########\n')
   
   return trained_model
 
