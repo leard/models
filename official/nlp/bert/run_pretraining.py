@@ -156,7 +156,8 @@ def run_customized_training(strategy,
       freeze_layers=freeze_layers)
   logging.info('\n##Layers at End##\n')
   trained_model.summary()
-  logging.info(trained_model.layers[4].get_weights()[0])
+  logging.info(trained_model.layers[4].layers[1].name)
+  #.get_weights()[0]
   
   return trained_model
 
