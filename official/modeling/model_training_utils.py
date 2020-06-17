@@ -243,9 +243,9 @@ def run_customized_training_loop(
 
     if init_checkpoint:      
       #########################################################################
-      checkpoint_file_path = tf.io.gfile.exists(init_checkpoint) and \
-        not tf.io.gfile.isdir(init_checkpoint)
-      if checkpoint_file_path :
+#       checkpoint_file_path = tf.io.gfile.exists(init_checkpoint) and \
+#         not tf.io.gfile.isdir(init_checkpoint)
+      if init_checkpoint:
         logging.info('\n##CHECKPOINT PATH##\n')
         logging.info(checkpoint_file_path)
         logging.info(
