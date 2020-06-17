@@ -244,9 +244,9 @@ def run_customized_training_loop(
     if init_checkpoint:      
       #########################################################################
       checkpoint_file_path = tf.train.latest_checkpoint(checkpoint_dir=init_checkpoint)
-      logging.info('\n##CHECKPOINT PATH##\n')
-      logging.info(checkpoint_file_path)
       if checkpoint_file_path:
+        logging.info('\n##CHECKPOINT PATH##\n')
+        logging.info(checkpoint_file_path)
         logging.info(
           'Checkpoint file %s found and restoring from '
           'initial checkpoint for core model.', init_checkpoint)
@@ -263,6 +263,8 @@ def run_customized_training_loop(
         logging.info('\n##Submodel Weights##\n')
         logging.info(sub_model.layers[1].get_weights()[0])
         logging.info('Loading from checkpoint file completed')
+      else:
+        logging.info('There is not a checkpoint!')
       #########################################################################
       
 
