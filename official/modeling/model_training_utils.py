@@ -297,7 +297,7 @@ def run_customized_training_loop(
         if 'embedding' in layer.name:
           logging.info(f'sub_model: {layer.name}')
           layer.trainable=True
-      sub_model.trainable = True
+      model.trainable = True
       logging.info('\n##Submodel After Freeze##\n')
       sub_model.summary()
       
