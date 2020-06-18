@@ -56,6 +56,12 @@ flags.DEFINE_string(
 flags.DEFINE_integer('train_batch_size', 32, 'Batch size for training.')
 flags.DEFINE_integer('eval_batch_size', 32, 'Batch size for evaluation.')
 
+flags.DEFINE_bool('freeze_embeddings', False, 'Freeze embedding layers')
+
+flags.DEFINE_bool('freeze_layers', False, 'Freeze layers, excluding embedding layers')
+
+flags.DEFINE_bool('freeze_transformer_body', False, 'Freeze transformer body, excluding embedding and other layers')
+
 common_flags.define_common_bert_flags()
 
 FLAGS = flags.FLAGS
@@ -111,7 +117,10 @@ def run_bert_classifier(strategy,
                         eval_input_fn,
                         custom_callbacks=None,
                         run_eagerly=False,
-                        use_keras_compile_fit=False):
+                        use_keras_compile_fit=False,
+                        freeze_embeddings,
+                        freeze_layers,
+                        freeze_transformer_body):
   """Run BERT classifier training using low-level API."""
   max_seq_length = input_meta_data['max_seq_length']
   num_classes = input_meta_data['num_labels']
@@ -176,7 +185,10 @@ def run_bert_classifier(strategy,
       init_checkpoint=init_checkpoint,
       metric_fn=metric_fn,
       custom_callbacks=custom_callbacks,
-      run_eagerly=run_eagerly)
+      run_eagerly=run_eagerly,
+      freeze_embeddings=freeze_embeddings,
+      freeze_layers=freeze_layers,
+      freeze_transformer_body=freeze_transformer_body)
 
 
 def run_keras_compile_fit(model_dir,
@@ -376,7 +388,10 @@ def run_bert(strategy,
       eval_input_fn,
       run_eagerly=FLAGS.run_eagerly,
       use_keras_compile_fit=FLAGS.use_keras_compile_fit,
-      custom_callbacks=custom_callbacks)
+      custom_callbacks=custom_callbacks,
+      FLAGS.freeze_embeddings,
+      FLAGS.freeze_layers,
+      FLAGS.freeze_transformer_body)
 
   if FLAGS.model_export_path:
     # As Keras ModelCheckpoint callback used with Keras compile/fit() API

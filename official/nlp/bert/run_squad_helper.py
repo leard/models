@@ -209,7 +209,10 @@ def train_squad(strategy,
                 input_meta_data,
                 bert_config,
                 custom_callbacks=None,
-                run_eagerly=False):
+                run_eagerly=False,
+                freeze_embeddings=None,
+                freeze_layers=None,
+                freeze_transformer_body=None):
   """Run bert squad training."""
   if strategy:
     logging.info('Training using customized training loop with distribution'
@@ -268,7 +271,10 @@ def train_squad(strategy,
       run_eagerly=run_eagerly,
       custom_callbacks=custom_callbacks,
       explicit_allreduce=False,
-      post_allreduce_callbacks=[clip_by_global_norm_callback])
+      post_allreduce_callbacks=[clip_by_global_norm_callback],
+      freeze_embeddings=freeze_embeddings,
+      freeze_layers=freeze_layers,
+      freeze_transformer_body=freeze_transformer_body)
 
 
 def predict_squad(strategy, input_meta_data, tokenizer, bert_config, squad_lib):

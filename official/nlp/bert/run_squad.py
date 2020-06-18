@@ -35,6 +35,12 @@ from official.utils.misc import keras_utils
 flags.DEFINE_string('vocab_file', None,
                     'The vocabulary file that the BERT model was trained on.')
 
+flags.DEFINE_bool('freeze_embeddings', False, 'Freeze embedding layers')
+
+flags.DEFINE_bool('freeze_layers', False, 'Freeze layers, excluding embedding layers')
+
+flags.DEFINE_bool('freeze_transformer_body', False, 'Freeze transformer body, excluding embedding and other layers')
+
 # More flags can be found in run_squad_helper.
 run_squad_helper.define_common_squad_flags()
 
@@ -44,11 +50,14 @@ FLAGS = flags.FLAGS
 def train_squad(strategy,
                 input_meta_data,
                 custom_callbacks=None,
-                run_eagerly=False):
+                run_eagerly=False,
+                freeze_embeddings=None,
+                freeze_layers=None,
+                freeze_transformer_body=None):
   """Run bert squad training."""
   bert_config = bert_configs.BertConfig.from_json_file(FLAGS.bert_config_file)
-  run_squad_helper.train_squad(strategy, input_meta_data, bert_config,
-                               custom_callbacks, run_eagerly)
+  run_squad_helper.train_squad(strategy, input_meta_data, bert_config, custom_callbacks, run_eagerly,
+                               freeze_embeddings, freeze_layers, freeze_transformer_body)
 
 
 def predict_squad(strategy, input_meta_data):
@@ -108,6 +117,9 @@ def main(_):
         input_meta_data,
         custom_callbacks=custom_callbacks,
         run_eagerly=FLAGS.run_eagerly,
+        freeze_embeddings=FLAGS.freeze_embeddings,
+        freeze_layers=FLAGS.freeze_layers,
+        freeze_transformer_body=FLAGS.freeze_transformer_body
     )
   if FLAGS.mode in ('predict', 'train_and_predict'):
     predict_squad(strategy, input_meta_data)
