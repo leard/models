@@ -118,9 +118,9 @@ def run_bert_classifier(strategy,
                         custom_callbacks=None,
                         run_eagerly=False,
                         use_keras_compile_fit=False,
-                        freeze_embeddings,
-                        freeze_layers,
-                        freeze_transformer_body):
+                        freeze_embeddings=None,
+                        freeze_layers=None,
+                        freeze_transformer_body=None):
   """Run BERT classifier training using low-level API."""
   max_seq_length = input_meta_data['max_seq_length']
   num_classes = input_meta_data['num_labels']
