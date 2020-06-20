@@ -85,7 +85,7 @@ flags.DEFINE_string("meta_data_file_path", None,
                     "The path in which input meta data will be written.")
 
 flags.DEFINE_bool(
-    "do_lower_case", True,
+    "do_lower_case", False,
     "Whether to lower case the input text. Should be True for uncased "
     "models and False for cased models.")
 
