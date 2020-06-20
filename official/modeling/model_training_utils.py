@@ -258,17 +258,17 @@ def run_customized_training_loop(
           'Checkpoint file %s found and restoring from '
           'initial checkpoint for core model.', init_checkpoint)
         
-        logging.info('\n##Submodel Before##\n')
+        #logging.info('\n##Submodel Before##\n')
         #sub_model.summary()
-        logging.info('\n##Submodel Weights##\n')
-        logging.info(sub_model.layers[3].get_weights()[0]) #position_embedding
+        #logging.info('\n##Submodel Weights##\n')
+        #logging.info(sub_model.layers[3].get_weights()[0]) #position_embedding
         
         checkpoint = tf.train.Checkpoint(model=sub_model)
         checkpoint.restore(init_checkpoint).assert_existing_objects_matched()
-        logging.info('\n##Submodel After##\n')
-        sub_model.summary()
-        logging.info('\n##Submodel Weight Embedding##\n')
-        logging.info(sub_model.layers[3].get_weights()[0]) #position_embedding
+        #logging.info('\n##Submodel After##\n')
+        #sub_model.summary()
+        #logging.info('\n##Submodel Weight Embedding##\n')
+        #logging.info(sub_model.layers[3].get_weights()[0]) #position_embedding
         logging.info('Loading from checkpoint file completed')
       else:
         logging.info('There is not a checkpoint!')
