@@ -88,7 +88,7 @@ def main(_):
 
   with tf.io.gfile.GFile(FLAGS.input_meta_data_path, 'rb') as reader:
     #input_meta_data = json.loads(reader.read().decode('utf-8'))
-    log.info(reader.read().decode('utf-8'))
+    print(reader.read().decode('utf-8'))
     input_meta_data = json.loads(reader)
 
   if FLAGS.mode == 'export_only':
