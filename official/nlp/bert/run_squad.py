@@ -86,15 +86,8 @@ def export_squad(model_export_path, input_meta_data):
 def main(_):
   # Users should always run this script under TF 2.x
 
-  # with tf.io.gfile.GFile(FLAGS.input_meta_data_path, 'rb') as reader:
-  #   input_meta_data = json.loads(reader.read().decode('utf-8'))
-  with tf.io.gfile.GFile(FLAGS.input_meta_data_path, 'r') as reader:
-      print(FLAGS.input_meta_data_path)
-      print(reader.read(n=-1))
-    #input_meta_data = json.loads(reader.read(n=-1))
-  # with open(FLAGS.input_meta_data_path, 'r') as reader:
-  #   input_meta_data = json.loads(reader)
-
+  with tf.io.gfile.GFile(FLAGS.input_meta_data_path, 'rb') as reader:
+    input_meta_data = json.loads(reader.read().decode('utf-8'))
 
   if FLAGS.mode == 'export_only':
     export_squad(FLAGS.model_export_path, input_meta_data)
