@@ -88,10 +88,10 @@ def main(_):
 
   # with tf.io.gfile.GFile(FLAGS.input_meta_data_path, 'rb') as reader:
   #   input_meta_data = json.loads(reader.read().decode('utf-8'))
-  # with tf.io.gfile.GFile(FLAGS.input_meta_data_path, 'r') as reader:
-  #   input_meta_data = json.loads(reader)
-  with open(FLAGS.input_meta_data_path, 'r') as reader:
+  with tf.io.gfile.GFile(FLAGS.input_meta_data_path, 'r') as reader:
     input_meta_data = json.loads(reader)
+  # with open(FLAGS.input_meta_data_path, 'r') as reader:
+  #   input_meta_data = json.loads(reader)
 
 
   if FLAGS.mode == 'export_only':
