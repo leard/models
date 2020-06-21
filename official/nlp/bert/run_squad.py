@@ -89,7 +89,9 @@ def main(_):
   # with tf.io.gfile.GFile(FLAGS.input_meta_data_path, 'rb') as reader:
   #   input_meta_data = json.loads(reader.read().decode('utf-8'))
   with tf.io.gfile.GFile(FLAGS.input_meta_data_path, 'r') as reader:
-    input_meta_data = json.loads(reader.read())
+      print(input_meta_data_path)
+      print(reader.read(n=-1))
+    #input_meta_data = json.loads(reader.read(n=-1))
   # with open(FLAGS.input_meta_data_path, 'r') as reader:
   #   input_meta_data = json.loads(reader)
 
