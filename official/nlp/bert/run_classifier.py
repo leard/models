@@ -389,9 +389,9 @@ def run_bert(strategy,
       run_eagerly=FLAGS.run_eagerly,
       use_keras_compile_fit=FLAGS.use_keras_compile_fit,
       custom_callbacks=custom_callbacks,
-      FLAGS.freeze_embeddings,
-      FLAGS.freeze_layers,
-      FLAGS.freeze_transformer_body)
+      freeze_embeddings=FLAGS.freeze_embeddings,
+      freeze_layers=FLAGS.freeze_layers,
+      freeze_transformer_body=FLAGS.freeze_transformer_body)
 
   if FLAGS.model_export_path:
     # As Keras ModelCheckpoint callback used with Keras compile/fit() API
