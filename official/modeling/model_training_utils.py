@@ -120,7 +120,9 @@ def run_customized_training_loop(
     post_allreduce_callbacks=None,
     freeze_embeddings=None,
     freeze_layers=None,
-    freeze_transformer_body=None):
+    freeze_transformer_body=None,
+    freeze_transformer_body_2=None,
+    freeze_word_embeddings=None):
   """Run BERT pretrain model training using low-level API.
 
   Arguments:
@@ -186,6 +188,8 @@ def run_customized_training_loop(
       freeze_embeddings: TODO
       freeze_layers: TODO
       freeze_transformer_body: TODO
+      freeze_transformer_body_2: TODO
+      freeze_word_embeddings: TODO
 
   Returns:
       Trained model.
@@ -300,6 +304,29 @@ def run_customized_training_loop(
       logging.info('\n##Embeddings freezed##\n')
       logging.info('#' * 80)
     
+    if freeze_word_embeddings:
+      # Freeze embedding layers, except embedding layers
+      logging.info('#' * 80)
+      logging.info('\n##Model before word embeddings be freezed##\n')
+      model.summary()
+
+      for i, layer in enumerate(model.layers):
+        if 'bert_pretrainer' in layer.name:
+          bert_pretrainer_layer = layer
+          logging.info('#bert_pretrainer layers freezed')
+          for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
+            logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
+            if 'transformer_encoder' in bert_sub_layer.name:
+              transformer_encoder_layer = bert_sub_layer
+              logging.info('##transformer_encoder layers freezed')
+              for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
+                if 'word_embeddings' in transformer_sub_layer.name:
+                  model.layers[i].layers[j].layers[k].trainable = False
+                  logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
+      model.summary()
+      logging.info('\n##Words embeddings freezed##\n')
+      logging.info('#' * 80)
+    
     if freeze_layers:
       # Freeze all the layers, except embedding layers
       logging.info('#' * 80)
@@ -316,7 +343,7 @@ def run_customized_training_loop(
               transformer_encoder_layer = bert_sub_layer
               logging.info('##transformer_encoder layers freezed')
               for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
-                if 'embedding' not in transformer_sub_layer.name:
+                if 'word_embeddings' not in transformer_sub_layer.name:
                   model.layers[i].layers[j].layers[k].trainable = False
                   logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
             elif 'masked_lm' in bert_sub_layer.name:
@@ -354,7 +381,29 @@ def run_customized_training_loop(
       model.summary()
       logging.info('\n##Layers Freezed##\n')
       logging.info('#' * 80)
+    
+    if freeze_transformer_body_2:
+      # Freeze all the layers, except embedding layers
+      logging.info('#' * 80)
+      logging.info('\n##Model before transformer be freezed##\n')
+      model.summary()
 
+      for i, layer in enumerate(model.layers):
+        if 'bert_pretrainer' in layer.name:
+          bert_pretrainer_layer = layer
+          logging.info('#bert_pretrainer layers freezed')
+          for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
+            logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
+            if 'transformer_encoder' in bert_sub_layer.name:
+              transformer_encoder_layer = bert_sub_layer
+              logging.info('##transformer_encoder layers freezed')
+              for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
+                if 'word_embeddings' not in transformer_sub_layer.name:
+                  model.layers[i].layers[j].layers[k].trainable = False
+                  logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
+      model.summary()
+      logging.info('\n##Layers Freezed##\n')
+      logging.info('#' * 80)
     ###################################################################################
     train_loss_metric = tf.keras.metrics.Mean(
         'training_loss', dtype=tf.float32)

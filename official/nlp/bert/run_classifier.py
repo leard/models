@@ -60,7 +60,11 @@ flags.DEFINE_bool('freeze_embeddings', False, 'Freeze embedding layers')
 
 flags.DEFINE_bool('freeze_layers', False, 'Freeze layers, excluding embedding layers')
 
-flags.DEFINE_bool('freeze_transformer_body', False, 'Freeze transformer body, excluding embedding and other layers')
+flags.DEFINE_bool('freeze_transformer_body', False, 'Freeze transformer body, excluding embedding and last layers')
+
+flags.DEFINE_bool('freeze_transformer_body_2', False, 'Freeze transformer body, excluding word embedding and last layers')
+
+flags.DEFINE_bool('freeze_word_embeddings', False, 'Freeze transformer body, excluding embedding and other layers')
 
 common_flags.define_common_bert_flags()
 
@@ -120,7 +124,9 @@ def run_bert_classifier(strategy,
                         use_keras_compile_fit=False,
                         freeze_embeddings=None,
                         freeze_layers=None,
-                        freeze_transformer_body=None):
+                        freeze_transformer_body=None,
+                        freeze_transformer_body_2=None,
+                        freeze_word_embeddings=None):
   """Run BERT classifier training using low-level API."""
   max_seq_length = input_meta_data['max_seq_length']
   num_classes = input_meta_data['num_labels']
@@ -188,7 +194,9 @@ def run_bert_classifier(strategy,
       run_eagerly=run_eagerly,
       freeze_embeddings=freeze_embeddings,
       freeze_layers=freeze_layers,
-      freeze_transformer_body=freeze_transformer_body)
+      freeze_transformer_body=freeze_transformer_body,
+      freeze_transformer_body_2=freeze_transformer_body_2,
+      freeze_word_embeddings=freeze_word_embeddings)
 
 
 def run_keras_compile_fit(model_dir,
@@ -391,7 +399,9 @@ def run_bert(strategy,
       custom_callbacks=custom_callbacks,
       freeze_embeddings=FLAGS.freeze_embeddings,
       freeze_layers=FLAGS.freeze_layers,
-      freeze_transformer_body=FLAGS.freeze_transformer_body)
+      freeze_transformer_body=FLAGS.freeze_transformer_body,
+      freeze_transformer_body_2=FLAGS.freeze_transformer_body_2,
+      freeze_word_embeddings=FLAGS.freeze_word_embeddings)
 
   if FLAGS.model_export_path:
     # As Keras ModelCheckpoint callback used with Keras compile/fit() API

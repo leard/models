@@ -41,6 +41,10 @@ flags.DEFINE_bool('freeze_layers', False, 'Freeze layers, excluding embedding la
 
 flags.DEFINE_bool('freeze_transformer_body', False, 'Freeze transformer body, excluding embedding and other layers')
 
+flags.DEFINE_bool('freeze_transformer_body_2', False, 'Freeze transformer body, excluding word embedding and last layers')
+
+flags.DEFINE_bool('freeze_word_embeddings', False, 'Freeze transformer body, excluding embedding and other layers')
+
 # More flags can be found in run_squad_helper.
 run_squad_helper.define_common_squad_flags()
 
@@ -53,11 +57,14 @@ def train_squad(strategy,
                 run_eagerly=False,
                 freeze_embeddings=None,
                 freeze_layers=None,
-                freeze_transformer_body=None):
+                freeze_transformer_body=None,
+                freeze_transformer_body_2=None,
+                freeze_word_embeddings=None):
   """Run bert squad training."""
   bert_config = bert_configs.BertConfig.from_json_file(FLAGS.bert_config_file)
   run_squad_helper.train_squad(strategy, input_meta_data, bert_config, custom_callbacks, run_eagerly,
-                               freeze_embeddings, freeze_layers, freeze_transformer_body)
+                               freeze_embeddings, freeze_layers, freeze_transformer_body, freeze_transformer_body_2,
+                               freeze_word_embeddings)
 
 
 def predict_squad(strategy, input_meta_data):
@@ -119,7 +126,9 @@ def main(_):
         run_eagerly=FLAGS.run_eagerly,
         freeze_embeddings=FLAGS.freeze_embeddings,
         freeze_layers=FLAGS.freeze_layers,
-        freeze_transformer_body=FLAGS.freeze_transformer_body
+        freeze_transformer_body=FLAGS.freeze_transformer_body,
+        freeze_transformer_body_2=FLAGS.freeze_transformer_body_2,
+        freeze_word_embeddings=FLAGS.freeze_word_embeddings
     )
   if FLAGS.mode in ('predict', 'train_and_predict'):
     predict_squad(strategy, input_meta_data)
