@@ -288,7 +288,7 @@ def run_customized_training_loop(
       model.summary()
 
       for i, layer in enumerate(model.layers):
-        if 'bert_pretrainer' in layer.name:
+        if 'bert_pretrainer' in layer.name or 'transformer_encoder' in layer.name:
           bert_pretrainer_layer = layer
           logging.info('#bert_pretrainer layers freezed')
           for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
@@ -311,7 +311,7 @@ def run_customized_training_loop(
       model.summary()
 
       for i, layer in enumerate(model.layers):
-        if 'bert_pretrainer' in layer.name:
+        if 'bert_pretrainer' in layer.name or 'transformer_encoder' in layer.name:
           bert_pretrainer_layer = layer
           logging.info('#bert_pretrainer layers freezed')
           for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
@@ -334,7 +334,7 @@ def run_customized_training_loop(
       model.summary()
 
       for i, layer in enumerate(model.layers):
-        if 'bert_pretrainer' in layer.name:
+        if 'bert_pretrainer' in layer.name or 'transformer_encoder' in layer.name:
           bert_pretrainer_layer = layer
           logging.info('#bert_pretrainer layers freezed')
           for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
@@ -366,7 +366,7 @@ def run_customized_training_loop(
       model.summary()
 
       for i, layer in enumerate(model.layers):
-        if 'bert_pretrainer' in layer.name:
+        if 'bert_pretrainer' in layer.name or 'transformer_encoder' in layer.name:
           bert_pretrainer_layer = layer
           logging.info('#bert_pretrainer layers freezed')
           for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
@@ -389,7 +389,7 @@ def run_customized_training_loop(
       model.summary()
 
       for i, layer in enumerate(model.layers):
-        if 'bert_pretrainer' in layer.name:
+        if 'bert_pretrainer' in layer.name or 'transformer_encoder' in layer.name:
           bert_pretrainer_layer = layer
           logging.info('#bert_pretrainer layers freezed')
           for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
