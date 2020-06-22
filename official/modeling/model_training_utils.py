@@ -291,15 +291,22 @@ def run_customized_training_loop(
         if 'bert_pretrainer' in layer.name or 'transformer_encoder' in layer.name:
           bert_pretrainer_layer = layer
           logging.info('#bert_pretrainer layers freezed')
-          for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
-            logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
-            if 'transformer_encoder' in bert_sub_layer.name:
-              transformer_encoder_layer = bert_sub_layer
-              logging.info('##transformer_encoder layers freezed')
-              for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
-                if 'embedding' in transformer_sub_layer.name:
-                  model.layers[i].layers[j].layers[k].trainable = False
-                  logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
+          if 'transformer_encoder' in layer.name:
+            logging.info('##transformer_encoder layers freezed')
+            for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
+              if 'embedding' in transformer_sub_layer.name:
+                model.layers[i].layers[k].trainable = False
+                logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
+          else:
+            for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
+              logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
+              if 'transformer_encoder' in bert_sub_layer.name:
+                transformer_encoder_layer = bert_sub_layer
+                logging.info('##transformer_encoder layers freezed')
+                for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
+                  if 'embedding' in transformer_sub_layer.name:
+                    model.layers[i].layers[j].layers[k].trainable = False
+                    logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
       model.summary()
       logging.info('\n##Embeddings freezed##\n')
       logging.info('#' * 80)
