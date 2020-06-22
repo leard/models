@@ -122,11 +122,11 @@ def run_bert_classifier(strategy,
                         custom_callbacks=None,
                         run_eagerly=False,
                         use_keras_compile_fit=False,
-                        freeze_embeddings=None,
-                        freeze_layers=None,
-                        freeze_transformer_body=None,
-                        freeze_transformer_body_2=None,
-                        freeze_word_embeddings=None):
+                        freeze_embeddings=False,
+                        freeze_layers=False,
+                        freeze_transformer_body=False,
+                        freeze_transformer_body_2=False,
+                        freeze_word_embeddings=False):
   """Run BERT classifier training using low-level API."""
   max_seq_length = input_meta_data['max_seq_length']
   num_classes = input_meta_data['num_labels']
@@ -440,8 +440,7 @@ def main(_):
       is_training=False)
 
   bert_config = bert_configs.BertConfig.from_json_file(FLAGS.bert_config_file)
-  run_bert(strategy, input_meta_data, bert_config, train_input_fn,
-           eval_input_fn)
+  run_bert(strategy, input_meta_data, bert_config, train_input_fn, eval_input_fn)
 
 
 if __name__ == '__main__':
