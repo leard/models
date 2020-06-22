@@ -118,11 +118,11 @@ def run_customized_training_loop(
     explicit_allreduce=False,
     pre_allreduce_callbacks=None,
     post_allreduce_callbacks=None,
-    freeze_embeddings=None,
-    freeze_layers=None,
-    freeze_transformer_body=None,
-    freeze_transformer_body_2=None,
-    freeze_word_embeddings=None):
+    freeze_embeddings=False,
+    freeze_layers=False,
+    freeze_transformer_body=False,
+    freeze_transformer_body_2=False,
+    freeze_word_embeddings=False):
   """Run BERT pretrain model training using low-level API.
 
   Arguments:
