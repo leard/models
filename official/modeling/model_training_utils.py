@@ -293,7 +293,7 @@ def run_customized_training_loop(
           logging.info('#bert_pretrainer layers freezed')
           if 'transformer_encoder' in layer.name:
             logging.info('##transformer_encoder layers freezed')
-            for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
+            for k, transformer_sub_layer in enumerate(bert_pretrainer_layer.layers):
               if 'embedding' in transformer_sub_layer.name:
                 model.layers[i].layers[k].trainable = False
                 logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
