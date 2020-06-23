@@ -383,14 +383,14 @@ def run_bert(strategy,
     logging.info('######Summary pretrainer_model######')
     logging.info(pretrain_model.summary())
 
-    # word_embeddings_weights = None
-    # for i, layer in enumerate(pretrainer_model.layers):
-    #     if 'transformer_encoder' in layer.name:
-    #       for k, transformer_sub_layer in enumerate(layer.layers):
-    #         if 'word_embeddings' in transformer_sub_layer.name:
-    #           word_embeddings_weights = pretrainer_model.layers[i].layers[j].get_weights()
-    #           #logging.info(f'gettting word_embeddings: {transformer_sub_layer.name}')
-    #           break
+    word_embeddings_weights = None
+    for i, layer in enumerate(pretrainer_model.layers):
+        if 'transformer_encoder' in layer.name:
+          for k, transformer_sub_layer in enumerate(layer.layers):
+            if 'word_embeddings' in transformer_sub_layer.name:
+              word_embeddings_weights = pretrain_model.layers[i].layers[j].get_weights()
+              logging.info(f'gettting word_embeddings: {transformer_sub_layer.name}')
+              break
 
     # #assert word_embeddings_weights
     #
