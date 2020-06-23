@@ -428,7 +428,9 @@ def run_bert(strategy,
         #       if 'word_embeddings' in transformer_sub_layer.name:
         #         logging.info(f'word_embeddings getting weights: {transformer_sub_layer.name}')
         #         pretrain_model.layers[i].layers[j].layers[k].set_weights(word_embeddings_weights)
-    word_embeddings_weights.assert_array_equal(word_embeddings_weights_class)
+    loggimg.info(f'word_embeddings_weights: {word_embeddings_weights[0]}')
+    loggimg.info(f'word_embeddings_weights_class: {word_embeddings_weights_class[0]}')
+    word_embeddings_weights.testing.assert_array_equal(word_embeddings_weights_class)
     #
     # logging.info('######Summary classifier_model######')
     # #logging.info(classifier_model.summary())
