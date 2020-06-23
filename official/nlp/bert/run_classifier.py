@@ -381,7 +381,7 @@ def run_bert(strategy,
                  'checkpoint', latest_checkpoint_file)
     checkpoint_giver.restore(latest_checkpoint_file).assert_existing_objects_matched() #.expect_partial()
     logging.info('######Summary pretrainer_model######')
-    #logging.info(pretrainer_model.summary())
+    logging.info(pretrainer_model.summary())
 
     word_embeddings_weights = None
     for i, layer in enumerate(pretrainer_model.layers):
@@ -392,29 +392,29 @@ def run_bert(strategy,
               #logging.info(f'gettting word_embeddings: {transformer_sub_layer.name}')
               break
 
-    assert word_embeddings_weights
-
-    classifier_model = bert_models.classifier_model(model_config,
-                                                    input_meta_data['num_labels'],
-                                                    input_meta_data['max_seq_length'])[0]
-    checkpoint = tf.train.Checkpoint(model=classifier_model)
-    latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.model_dir)
-    assert latest_checkpoint_file
-    logging.info('Checkpoint file %s found and restoring from '
-                 'checkpoint', latest_checkpoint_file)
-    checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched() #.expect_partial()
-
-    for i, layer in enumerate(classifier_model.layers):
-        if 'transformer_encoder' in layer.name:
-          for k, transformer_sub_layer in enumerate(layer.layers):
-            if 'word_embeddings' in transformer_sub_layer.name:
-              pretrainer_model.layers[i].layers[j].set_weights(word_embeddings_weights)
-              #logging.info(f'setting word_embeddings: {transformer_sub_layer.name}')
-              break
-
-    logging.info('######Summary classifier_model######')
-    #logging.info(classifier_model.summary())
-    classifier_model.save(FLAGS.model_dir + '/transfer_learning')
+    # #assert word_embeddings_weights
+    #
+    # classifier_model = bert_models.classifier_model(model_config,
+    #                                                 input_meta_data['num_labels'],
+    #                                                 input_meta_data['max_seq_length'])[0]
+    # checkpoint = tf.train.Checkpoint(model=classifier_model)
+    # latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.model_dir)
+    # assert latest_checkpoint_file
+    # logging.info('Checkpoint file %s found and restoring from '
+    #              'checkpoint', latest_checkpoint_file)
+    # checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched() #.expect_partial()
+    #
+    # for i, layer in enumerate(classifier_model.layers):
+    #     if 'transformer_encoder' in layer.name:
+    #       for k, transformer_sub_layer in enumerate(layer.layers):
+    #         if 'word_embeddings' in transformer_sub_layer.name:
+    #           pretrainer_model.layers[i].layers[j].set_weights(word_embeddings_weights)
+    #           #logging.info(f'setting word_embeddings: {transformer_sub_layer.name}')
+    #           break
+    #
+    # logging.info('######Summary classifier_model######')
+    # #logging.info(classifier_model.summary())
+    # classifier_model.save(FLAGS.model_dir + '/transfer_learning')
     return
 
   if FLAGS.mode == 'predict':
