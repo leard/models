@@ -369,7 +369,7 @@ def run_bert(strategy,
                       model_config, FLAGS.model_dir)
     # Create a basic model instance
     classifier_model = tf.saved_model.load(FLAGS.model_export_path)
-    log.info(classifier_model)
+    logging.info(classifier_model)
     return
   if FLAGS.mode == 'predict':
     with strategy.scope():
