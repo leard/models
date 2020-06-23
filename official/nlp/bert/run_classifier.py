@@ -369,8 +369,31 @@ def run_bert(strategy,
                       FLAGS.use_keras_compile_fit,
                       model_config, FLAGS.model_dir)
     return
+  
   if FLAGS.mode == 'transfer_learning':
-    assert FLAGS.predict_checkpoint_path
+
+    pretrainer_model = bert_models.pretrain_model(model_config, 512, 128)
+
+    checkpoint_giver = tf.train.Checkpoint(model=pretrainer_model)
+    latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.predict_checkpoint_path)
+    assert latest_checkpoint_file
+    logging.info('Checkpoint file %s found and restoring from '
+                 'checkpoint', latest_checkpoint_file)
+    checkpoint_giver.restore(latest_checkpoint_file).assert_existing_objects_matched()
+    logging.info('######Summary pretrainer_model######')
+    logging.info(pretrainer_model.summary())
+
+    word_embeddings_weights = None
+    for i, layer in enumerate(pretrainer_model.layers):
+        if 'transformer_encoder' in layer.name:
+          for k, transformer_sub_layer in enumerate(layer.layers):
+            if 'word_embeddings' not in transformer_sub_layer.name:
+              word_embeddings_weights = pretrainer_model.layers[i].layers[j].get_weights()
+              logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
+
+    if word_embeddings_weights:
+        logging.info(f'Word Embeddings: {word_embeddings_weights.shape}')
+
     classifier_model = bert_models.classifier_model(model_config,
                                                     input_meta_data['num_labels'],
                                                     input_meta_data['max_seq_length'])[0]
@@ -380,10 +403,13 @@ def run_bert(strategy,
     logging.info('Checkpoint file %s found and restoring from '
                  'checkpoint', latest_checkpoint_file)
     checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched()
-    logging.info('######Summary######')
+
+
+    logging.info('######Summary classifier_model######')
     logging.info(classifier_model.summary())
 
     return
+
   if FLAGS.mode == 'predict':
     with strategy.scope():
       test_steps = int(math.ceil(input_meta_data['test_data_size'] / FLAGS.test_batch_size))
