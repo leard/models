@@ -484,7 +484,8 @@ def main(_):
       is_training=False)
 
   bert_config = bert_configs.BertConfig.from_json_file(FLAGS.bert_config_file)
-  run_bert(strategy, input_meta_data, bert_config, train_input_fn, eval_input_fn, test_input_fn)
+  model_trained = run_bert(strategy, input_meta_data, bert_config, train_input_fn, eval_input_fn, test_input_fn)
+  model_trained.save(FLAGS.model_dir+'/trained_model')
 
 
 if __name__ == '__main__':
