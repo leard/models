@@ -385,7 +385,7 @@ def run_bert(strategy,
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
       logging.info('***** Predict results *****')
       logging.info( (preds.equals(labels) == True).sum())
-      logging.info(labels)
+      logging.info(labels.shape)
       for probabilities in preds:
 
         output_line = '\t' + str(probabilities) + '\n'
