@@ -374,7 +374,7 @@ def run_bert(strategy,
 
     pretrain_model, core_model = bert_models.pretrain_model(model_config, 512, 128)
 
-    checkpoint_giver = tf.train.Checkpoint(model=pretrain_model)
+    checkpoint_giver = tf.train.Checkpoint(model=core_model)
     latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.predict_checkpoint_path)
     assert latest_checkpoint_file
     logging.info('Checkpoint file %s found and restoring from '
@@ -383,11 +383,13 @@ def run_bert(strategy,
     logging.info('######Summary pretrainer_model######')
     logging.info(pretrain_model.summary())
     logging.info(core_model.summary())
+    #TODO: Check embedding is equal
 
     word_embeddings_weights = None
     for i, layer in enumerate(pretrain_model.layers):
         if 'bert_pretrainer' in layer.name:
           bert_pretrainer_layer = layer
+          logging.info(f'Layer Name: {bert_pretrainer_layer.name}')
           if 'transformer_encoder' in bert_pretrainer_layer.name:
               for k, transformer_sub_layer in enumerate(bert_pretrainer_layer.layers):
                 if 'word_embeddings' in transformer_sub_layer.name:
