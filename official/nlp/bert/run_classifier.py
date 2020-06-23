@@ -372,16 +372,16 @@ def run_bert(strategy,
 
   if FLAGS.mode == 'transfer_learning':
 
-    pretrainer_model = bert_models.pretrain_model(model_config, 512, 128)
+    pretrain_model, core_model = bert_models.pretrain_model(model_config, 512, 128)
 
-    checkpoint_giver = tf.train.Checkpoint(model=pretrainer_model)
+    checkpoint_giver = tf.train.Checkpoint(model=core_model)
     latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.predict_checkpoint_path)
     assert latest_checkpoint_file
     logging.info('Checkpoint file %s found and restoring from '
                  'checkpoint', latest_checkpoint_file)
     checkpoint_giver.restore(latest_checkpoint_file).assert_existing_objects_matched() #.expect_partial()
     logging.info('######Summary pretrainer_model######')
-    #logging.info(pretrainer_model.summary())
+    logging.info(pretrain_model.summary())
 
     # word_embeddings_weights = None
     # for i, layer in enumerate(pretrainer_model.layers):
