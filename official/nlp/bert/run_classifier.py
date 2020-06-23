@@ -99,7 +99,7 @@ def get_loss_fn(num_classes):
 
 
 def get_dataset_fn(input_file_pattern, max_seq_length, global_batch_size,
-                   is_training):
+                   is_training, label_type=tf.int64, include_sample_weights=False):
   """Gets a closure to create a dataset."""
 
   def _dataset_fn(ctx=None):
@@ -111,7 +111,10 @@ def get_dataset_fn(input_file_pattern, max_seq_length, global_batch_size,
         max_seq_length,
         batch_size,
         is_training=is_training,
-        input_pipeline_context=ctx)
+        input_pipeline_context=ctx,
+        label_type=label_type,
+        include_sample_weights=include_sample_weights
+    )
     return dataset
 
   return _dataset_fn
