@@ -39,11 +39,12 @@ from official.utils.misc import keras_utils
 
 
 flags.DEFINE_enum(
-    'mode', 'train_and_eval', ['train_and_eval', 'export_only'],
-    'One of {"train_and_eval", "export_only"}. `train_and_eval`: '
+    'mode', 'train_and_eval', ['train_and_eval', 'export_only', 'do_prediction'],
+    'One of {"train_and_eval", "export_only", "do_prediction"}. `train_and_eval`: '
     'trains the model and evaluates in the meantime. '
     '`export_only`: will take the latest checkpoint inside '
-    'model_dir and export a `SavedModel`.')
+    'model_dir and export a `SavedModel`. '
+    '`do_prediction`: Whether to run the model in inference mode on the test set.')
 flags.DEFINE_string('train_data_path', None,
                     'Path to training data for BERT classifier.')
 flags.DEFINE_string('eval_data_path', None,
@@ -65,6 +66,8 @@ flags.DEFINE_bool('freeze_transformer_body', False, 'Freeze transformer body, ex
 flags.DEFINE_bool('freeze_transformer_body_2', False, 'Freeze transformer body, excluding word embedding and last layers')
 
 flags.DEFINE_bool('freeze_word_embeddings', False, 'Freeze transformer body, excluding embedding and other layers')
+
+flags.DEFINE_string('transfer_learning', None, 'Model for transfer learning [freeze_layers, freeze_transformer_body, freeze_transformer_body_2, freeze_word_embeddings]')
 
 common_flags.define_common_bert_flags()
 
@@ -354,7 +357,8 @@ def run_bert(strategy,
                       FLAGS.use_keras_compile_fit,
                       model_config, FLAGS.model_dir)
     return
-
+  if FLAGS.mode == 'do_prediction':
+      return
   if FLAGS.mode != 'train_and_eval':
     raise ValueError('Unsupported mode is specified: %s' % FLAGS.mode)
   # Enables XLA in Session Config. Should not be set for TPU.

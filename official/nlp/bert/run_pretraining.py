@@ -58,6 +58,7 @@ flags.DEFINE_bool('freeze_transformer_body_2', False, 'Freeze transformer body, 
 
 flags.DEFINE_bool('freeze_word_embeddings', False, 'Freeze transformer body, excluding embedding and other layers')
 
+
 common_flags.define_common_bert_flags()
 common_flags.define_gin_flags()
 

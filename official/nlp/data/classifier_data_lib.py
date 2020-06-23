@@ -193,10 +193,7 @@ class AssinProcessor(DataProcessor):
       guid = "%s-%s" % (set_type, self.process_text_fn(line[0]))
       text_a = self.process_text_fn(line[0])
       text_b = self.process_text_fn(line[1])
-      if set_type == "test":
-        label = "neutral"
-      else:
-        label = self.process_text_fn(line[-1])
+      label = self.process_text_fn(line[-1])
       examples.append(
           InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
     return examples
@@ -238,10 +235,7 @@ class NliProcessor(DataProcessor):
       guid = "%s-%s" % (set_type, self.process_text_fn(line[0]))
       text_a = self.process_text_fn(line[0])
       text_b = self.process_text_fn(line[1])
-      if set_type == "test":
-        label = "contradiction"
-      else:
-        label = self.process_text_fn(line[-1])
+      label = self.process_text_fn(line[-1])
       examples.append(
           InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
     return examples
@@ -622,6 +616,7 @@ def generate_tf_record_from_data_file(processor,
                                       tokenizer,
                                       train_data_output_path=None,
                                       eval_data_output_path=None,
+                                      test_data_output_path=None,
                                       max_seq_length=128):
   """Generates and saves training data into a tf record file.
 
@@ -657,6 +652,12 @@ def generate_tf_record_from_data_file(processor,
                                             label_list, max_seq_length,
                                             tokenizer, eval_data_output_path)
 
+  if test_data_output_path:
+    test_input_data_examples = processor.get_test_examples(data_dir)
+    file_based_convert_examples_to_features(test_input_data_examples,
+                                            label_list, max_seq_length,
+                                            tokenizer, test_data_output_path)
+
   meta_data = {
       "task_type": "bert_classification",
       "processor_type": processor.get_processor_name(),
@@ -667,5 +668,8 @@ def generate_tf_record_from_data_file(processor,
 
   if eval_data_output_path:
     meta_data["eval_data_size"] = len(eval_input_data_examples)
+
+  if test_data_output_path:
+    meta_data["test_data_size"] = len(test_input_data_examples)
 
   return meta_data
