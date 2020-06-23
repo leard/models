@@ -379,7 +379,7 @@ def run_bert(strategy,
     assert latest_checkpoint_file
     logging.info('Checkpoint file %s found and restoring from '
                  'checkpoint', latest_checkpoint_file)
-    checkpoint_giver.restore(latest_checkpoint_file).assert_existing_objects_matched()
+    checkpoint_giver.restore(latest_checkpoint_file).assert_consumed()
     logging.info('######Summary pretrainer_model######')
     logging.info(pretrainer_model.summary())
 
@@ -402,7 +402,7 @@ def run_bert(strategy,
     assert latest_checkpoint_file
     logging.info('Checkpoint file %s found and restoring from '
                  'checkpoint', latest_checkpoint_file)
-    checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched()
+    checkpoint.restore(latest_checkpoint_file).assert_consumed()
 
     for i, layer in enumerate(classifier_model.layers):
         if 'transformer_encoder' in layer.name:
