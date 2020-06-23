@@ -385,7 +385,7 @@ def run_bert(strategy,
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
       logging.info('***** Predict results *****')
       for probabilities, label in zip(preds, labels):
-        logging.info(probabilities, label)
+        logging.info(str(probabilities), label)
         output_line = '\t' + str(probabilities) + '\n'
         writer.write(output_line)
     return
