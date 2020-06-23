@@ -367,6 +367,9 @@ def run_bert(strategy,
     export_classifier(FLAGS.model_export_path, input_meta_data,
                       FLAGS.use_keras_compile_fit,
                       model_config, FLAGS.model_dir)
+    # Create a basic model instance
+    classifier_model = tf.keras.models.load_model(FLAGS.model_export_path)
+    classifier_model.summary()
     return
   if FLAGS.mode == 'predict':
     with strategy.scope():
@@ -385,19 +388,11 @@ def run_bert(strategy,
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
       sum_equals = sum(x == y for x, y in zip(preds, labels))
       writer.write('{')
-      writer.write(f'"labels":[{labels}]\n')
-      writer.write(f'"preds":[{preds}]\n')
+      writer.write(f'"labels":{labels}\n')
+      writer.write(f'"preds":{preds}\n')
       writer.write(f'"accuracy":{sum_equals/len(preds)}\n')
       writer.write('}')
       logging.info('***** Predict results *****')
-      # logging.info(f'Preds: {len(preds)}')
-      # logging.info(f'labels: {len(labels)}')
-      #
-      # logging.info(f'Equals: {sum_equals}')
-      # logging.info(f'Accuracy: {sum_equals/len(preds)}')
-      # for probabilities in preds:
-      #   output_line = '\t' + str(probabilities) + '\n'
-      #   writer.write(output_line)
     return
 
   if FLAGS.mode != 'train_and_eval':
