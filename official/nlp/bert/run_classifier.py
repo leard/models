@@ -409,7 +409,7 @@ def run_bert(strategy,
     assert latest_checkpoint_file
     logging.info('Checkpoint file %s found and restoring from '
                  'checkpoint', latest_checkpoint_file)
-    checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched() #.expect_partial()
+    checkpoint.restore(latest_checkpoint_file).expect_partial() #.assert_existing_objects_matched() #.expect_partial()
     logging.info(classifier_model.summary())
 
 
@@ -418,8 +418,9 @@ def run_bert(strategy,
         transformer_encoder_layer = layer
         logging.info(f'Layer Name: {transformer_encoder_layer.name}')
         for j, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
-            logging.info(f'transformer_sub_layer : {transformer_sub_layer.name}')
-        #   if 'transformer_encoder' in bert_sub_layer.name:
+          if 'word_embeddings' in transformer_sub_layer.name:
+            logging.info(f'word_embeddings setting weights: {transformer_sub_layer.name}')
+            pretrain_model.layers[i].layers[j].set_weights(word_embeddings_weights)
         #     logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
         #     transformer_encoder_layer = bert_sub_layer
         #     for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
