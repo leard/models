@@ -376,7 +376,8 @@ def run_bert(strategy,
     logging.info(loaded)
     for variable in loaded.variables:
         logging.info(f'Variable Name: {variable.name}')
-    
+    logging.info(loaded.signatures)
+
   return
   if FLAGS.mode == 'predict':
     with strategy.scope():
