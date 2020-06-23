@@ -370,7 +370,9 @@ def run_bert(strategy,
     return
   if FLAGS.mode == 'predict':
     with strategy.scope():
-      classifier_model = bert_models.classifier_model(model_config, input_meta_data['num_labels'])[0]
+      classifier_model = bert_models.classifier_model(model_config,
+                                                      input_meta_data['num_labels'],
+                                                      input_meta_data['max_seq_length'])[0]
       checkpoint = tf.train.Checkpoint(model=classifier_model)
       latest_checkpoint_file = (FLAGS.predict_checkpoint_path or tf.train.latest_checkpoint(FLAGS.model_dir))
       assert latest_checkpoint_file
