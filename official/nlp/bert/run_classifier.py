@@ -39,35 +39,43 @@ from official.utils.misc import keras_utils
 
 
 flags.DEFINE_enum(
-    'mode', 'train_and_eval', ['train_and_eval', 'export_only', 'do_prediction'],
+    'mode', 'train_and_eval', ['train_and_eval', 'export_only', 'predict'],
     'One of {"train_and_eval", "export_only", "do_prediction"}. `train_and_eval`: '
     'trains the model and evaluates in the meantime. '
     '`export_only`: will take the latest checkpoint inside '
-    'model_dir and export a `SavedModel`. '
-    '`do_prediction`: Whether to run the model in inference mode on the test set.')
+    'model_dir and export a `SavedModel`.  `predict`: takes a checkpoint and '
+    'restores the model to output predictions on the test set.')
 flags.DEFINE_string('train_data_path', None,
                     'Path to training data for BERT classifier.')
 flags.DEFINE_string('eval_data_path', None,
+                    'Path to evaluation data for BERT classifier.')
+flags.DEFINE_string('test_data_path', None,
                     'Path to evaluation data for BERT classifier.')
 # Model training specific flags.
 flags.DEFINE_string(
     'input_meta_data_path', None,
     'Path to file that contains meta data about input '
     'to be used for training and evaluation.')
+flags.DEFINE_string('predict_checkpoint_path', None,
+                    'Path to the checkpoint for predictions.')
+
 flags.DEFINE_integer('train_batch_size', 32, 'Batch size for training.')
 flags.DEFINE_integer('eval_batch_size', 32, 'Batch size for evaluation.')
+flags.DEFINE_integer('test_batch_size', 32, 'Batch size for prediction.')
 
 flags.DEFINE_bool('freeze_embeddings', False, 'Freeze embedding layers')
-
 flags.DEFINE_bool('freeze_layers', False, 'Freeze layers, excluding embedding layers')
-
-flags.DEFINE_bool('freeze_transformer_body', False, 'Freeze transformer body, excluding embedding and last layers')
-
-flags.DEFINE_bool('freeze_transformer_body_2', False, 'Freeze transformer body, excluding word embedding and last layers')
-
-flags.DEFINE_bool('freeze_word_embeddings', False, 'Freeze transformer body, excluding embedding and other layers')
-
-flags.DEFINE_string('transfer_learning', None, 'Model for transfer learning [freeze_layers, freeze_transformer_body, freeze_transformer_body_2, freeze_word_embeddings]')
+flags.DEFINE_bool('freeze_transformer_body', False, 'Freeze transformer body, '
+                                                    'excluding embedding and last layers')
+flags.DEFINE_bool('freeze_transformer_body_2', False, 'Freeze transformer body, '
+                                                      'excluding word embedding and last layers')
+flags.DEFINE_bool('freeze_word_embeddings', False, 'Freeze transformer body, '
+                                                   'excluding embedding and other layers')
+flags.DEFINE_string('transfer_learning', None, 'Model for transfer learning '
+                                               '[freeze_layers, '
+                                               'freeze_transformer_body, '
+                                               'freeze_transformer_body_2, '
+                                               'freeze_word_embeddings]')
 
 common_flags.define_common_bert_flags()
 
@@ -143,8 +151,9 @@ def run_bert_classifier(strategy,
             max_seq_length,
             hub_module_url=FLAGS.hub_module_url,
             hub_module_trainable=FLAGS.hub_module_trainable))
-    optimizer = optimization.create_optimizer(
-        initial_lr, steps_per_epoch * epochs, warmup_steps)
+    optimizer = optimization.create_optimizer(initial_lr,
+                                              steps_per_epoch * epochs,
+                                              warmup_steps)
     classifier_model.optimizer = performance.configure_optimizer(
         optimizer,
         use_float16=common_flags.use_float16(),
@@ -157,7 +166,8 @@ def run_bert_classifier(strategy,
   # correct device and strategy scope.
   def metric_fn():
     return tf.keras.metrics.SparseCategoricalAccuracy(
-        'test_accuracy', dtype=tf.float32)
+        'test_accuracy',
+        dtype=tf.float32)
 
   if use_keras_compile_fit:
     # Start training using Keras compile/fit API.
@@ -347,7 +357,8 @@ def run_bert(strategy,
              input_meta_data,
              model_config,
              train_input_fn=None,
-             eval_input_fn=None):
+             eval_input_fn=None,
+             test_input_fn=None):
   """Run BERT training."""
   if FLAGS.mode == 'export_only':
     # As Keras ModelCheckpoint callback used with Keras compile/fit() API
@@ -357,8 +368,24 @@ def run_bert(strategy,
                       FLAGS.use_keras_compile_fit,
                       model_config, FLAGS.model_dir)
     return
-  if FLAGS.mode == 'do_prediction':
-      return
+  if FLAGS.mode == 'predict':
+    with strategy.scope():
+      classifier_model = bert_models.classifier_model(model_config, input_meta_data['num_labels'])[0]
+      checkpoint = tf.train.Checkpoint(model=classifier_model)
+      latest_checkpoint_file = (FLAGS.predict_checkpoint_path or tf.train.latest_checkpoint(FLAGS.model_dir))
+      assert latest_checkpoint_file
+      logging.info('Checkpoint file %s found and restoring from '
+                   'checkpoint', latest_checkpoint_file)
+      checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched()
+      preds, _ = get_predictions_and_labels(strategy, classifier_model, test_input_fn, return_probs=True)
+    output_predict_file = os.path.join(FLAGS.model_dir, 'test_results.tsv')
+    with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
+      logging.info('***** Predict results *****')
+      for probabilities in preds:
+        output_line = '\t'.join(str(class_probability) for class_probability in probabilities) + '\n'
+        writer.write(output_line)
+    return
+
   if FLAGS.mode != 'train_and_eval':
     raise ValueError('Unsupported mode is specified: %s' % FLAGS.mode)
   # Enables XLA in Session Config. Should not be set for TPU.
@@ -369,8 +396,7 @@ def run_bert(strategy,
   train_data_size = input_meta_data['train_data_size']
   steps_per_epoch = int(train_data_size / FLAGS.train_batch_size)
   warmup_steps = int(epochs * train_data_size * 0.1 / FLAGS.train_batch_size)
-  eval_steps = int(
-      math.ceil(input_meta_data['eval_data_size'] / FLAGS.eval_batch_size))
+  eval_steps = int(math.ceil(input_meta_data['eval_data_size'] / FLAGS.eval_batch_size))
 
   if not strategy:
     raise ValueError('Distribution strategy has not been specified.')
@@ -442,9 +468,14 @@ def main(_):
       max_seq_length,
       FLAGS.eval_batch_size,
       is_training=False)
+  test_input_fn = get_dataset_fn(
+      FLAGS.test_data_path,
+      max_seq_length,
+      FLAGS.test_batch_size,
+      is_training=False)
 
   bert_config = bert_configs.BertConfig.from_json_file(FLAGS.bert_config_file)
-  run_bert(strategy, input_meta_data, bert_config, train_input_fn, eval_input_fn)
+  run_bert(strategy, input_meta_data, bert_config, train_input_fn, eval_input_fn, test_input_fn)
 
 
 if __name__ == '__main__':
