@@ -364,13 +364,19 @@ def run_bert(strategy,
     # As Keras ModelCheckpoint callback used with Keras compile/fit() API
     # internally uses model.save_weights() to save checkpoints, we must
     # use model.load_weights() when Keras compile/fit() is used.
+    assert FLAGS.model_export_path
     export_classifier(FLAGS.model_export_path, input_meta_data,
                       FLAGS.use_keras_compile_fit,
                       model_config, FLAGS.model_dir)
     return
   if FLAGS.mode == 'transfer_learning':
+    assert FLAGS.predict_checkpoint_path
     loaded = tf.saved_model.load(FLAGS.predict_checkpoint_path)
     print("BraBERT has {} trainable variables: \n{},".format(len(loaded.trainable_variables),", ".join([v.name for v in loaded.trainable_variables])))
+    logging.info(loaded)
+    for layer in loaded.layers:
+        logging.info(f'Layer Name: {layer.name}')
+    loaded.summary()
   return
   if FLAGS.mode == 'predict':
     with strategy.scope():
