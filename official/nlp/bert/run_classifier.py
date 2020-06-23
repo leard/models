@@ -383,15 +383,21 @@ def run_bert(strategy,
       preds, labels = get_predictions_and_labels(strategy, classifier_model, test_input_fn, test_steps)
     output_predict_file = os.path.join(FLAGS.model_dir, 'test_results.tsv')
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
-      logging.info('***** Predict results *****')
-      logging.info(f'Preds: {len(preds)}')
-      logging.info(f'labels: {len(labels)}')
       sum_equals = sum(x == y for x, y in zip(preds, labels))
-      logging.info(f'Equals: {sum_equals}')
-      logging.info(f'Accuracy: {len(preds)/sum_equals}')
-      for probabilities in preds:
-        output_line = '\t' + str(probabilities) + '\n'
-        writer.write(output_line)
+      writer.write('{')
+      writer.write(f'"labels":[{labels}]\n')
+      writer.write(f'"preds":[{preds}]\n')
+      writer.write(f'"accuracy":{sum_equals/len(preds)}\n')
+      writer.write('}')
+      logging.info('***** Predict results *****')
+      # logging.info(f'Preds: {len(preds)}')
+      # logging.info(f'labels: {len(labels)}')
+      #
+      # logging.info(f'Equals: {sum_equals}')
+      # logging.info(f'Accuracy: {sum_equals/len(preds)}')
+      # for probabilities in preds:
+      #   output_line = '\t' + str(probabilities) + '\n'
+      #   writer.write(output_line)
     return
 
   if FLAGS.mode != 'train_and_eval':
