@@ -379,9 +379,9 @@ def run_bert(strategy,
     assert latest_checkpoint_file
     logging.info('Checkpoint file %s found and restoring from '
                  'checkpoint', latest_checkpoint_file)
-    checkpoint_giver.restore(latest_checkpoint_file).expect_partial()
+    checkpoint_giver.restore(latest_checkpoint_file).assert_existing_objects_matched() #.expect_partial()
     logging.info('######Summary pretrainer_model######')
-    logging.info(pretrainer_model.summary())
+    #logging.info(pretrainer_model.summary())
 
     # word_embeddings_weights = None
     # for i, layer in enumerate(pretrainer_model.layers):
