@@ -379,7 +379,7 @@ def run_bert(strategy,
     assert latest_checkpoint_file
     logging.info('Checkpoint file %s found and restoring from '
                  'checkpoint', latest_checkpoint_file)
-    checkpoint_giver.restore(latest_checkpoint_file).assert_consumed()
+    checkpoint_giver.restore(latest_checkpoint_file).expect_partial()
     logging.info('######Summary pretrainer_model######')
     logging.info(pretrainer_model.summary())
 
@@ -389,7 +389,7 @@ def run_bert(strategy,
           for k, transformer_sub_layer in enumerate(layer.layers):
             if 'word_embeddings' in transformer_sub_layer.name:
               word_embeddings_weights = pretrainer_model.layers[i].layers[j].get_weights()
-              logging.info(f'gettting word_embeddings: {transformer_sub_layer.name}')
+              #logging.info(f'gettting word_embeddings: {transformer_sub_layer.name}')
               break
 
     assert word_embeddings_weights
@@ -402,14 +402,14 @@ def run_bert(strategy,
     assert latest_checkpoint_file
     logging.info('Checkpoint file %s found and restoring from '
                  'checkpoint', latest_checkpoint_file)
-    checkpoint.restore(latest_checkpoint_file).assert_consumed()
+    checkpoint.restore(latest_checkpoint_file).expect_partial()
 
     for i, layer in enumerate(classifier_model.layers):
         if 'transformer_encoder' in layer.name:
           for k, transformer_sub_layer in enumerate(layer.layers):
             if 'word_embeddings' in transformer_sub_layer.name:
               pretrainer_model.layers[i].layers[j].set_weights(word_embeddings_weights)
-              logging.info(f'setting word_embeddings: {transformer_sub_layer.name}')
+              #logging.info(f'setting word_embeddings: {transformer_sub_layer.name}')
               break
 
     logging.info('######Summary classifier_model######')
