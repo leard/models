@@ -411,20 +411,21 @@ def run_bert(strategy,
                  'checkpoint', latest_checkpoint_file)
     checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched() #.expect_partial()
     logging.info(classifier_model.summary())
-    
 
-    # for i, layer in enumerate(classifier_model.layers):
-    #   if 'bert_pretrainer' in layer.name:
-    #     bert_pretrainer_layer = layer
-    #     logging.info(f'Layer Name: {bert_pretrainer_layer.name}')
-    #     for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
-    #       if 'transformer_encoder' in bert_sub_layer.name:
-    #         logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
-    #         transformer_encoder_layer = bert_sub_layer
-    #         for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
-    #           if 'word_embeddings' in transformer_sub_layer.name:
-    #             logging.info(f'word_embeddings getting weights: {transformer_sub_layer.name}')
-    #             pretrain_model.layers[i].layers[j].layers[k].set_weights(word_embeddings_weights)
+
+    for i, layer in enumerate(classifier_model.layers):
+      if 'transformer_encoder' in layer.name:
+        transformer_encoder_layer = layer
+        logging.info(f'Layer Name: {transformer_encoder_layer.name}')
+        for j, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
+            logging.info(f'transformer_sub_layer : {transformer_sub_layer.name}')
+        #   if 'transformer_encoder' in bert_sub_layer.name:
+        #     logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
+        #     transformer_encoder_layer = bert_sub_layer
+        #     for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
+        #       if 'word_embeddings' in transformer_sub_layer.name:
+        #         logging.info(f'word_embeddings getting weights: {transformer_sub_layer.name}')
+        #         pretrain_model.layers[i].layers[j].layers[k].set_weights(word_embeddings_weights)
     #
     # logging.info('######Summary classifier_model######')
     # #logging.info(classifier_model.summary())
