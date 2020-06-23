@@ -380,11 +380,12 @@ def run_bert(strategy,
       logging.info('Checkpoint file %s found and restoring from '
                    'checkpoint', latest_checkpoint_file)
       checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched()
-      preds, _ = get_predictions_and_labels(strategy, classifier_model, test_input_fn, test_steps)
+      preds, labels = get_predictions_and_labels(strategy, classifier_model, test_input_fn, test_steps)
     output_predict_file = os.path.join(FLAGS.model_dir, 'test_results.tsv')
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
       logging.info('***** Predict results *****')
-      for probabilities in preds:
+      for probabilities, label in zip(preds, labels):
+        logging.info(probabilities, label)
         output_line = '\t' + str(probabilities) + '\n'
         writer.write(output_line)
     return
