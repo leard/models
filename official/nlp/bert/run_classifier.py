@@ -387,12 +387,12 @@ def run_bert(strategy,
     for i, layer in enumerate(pretrainer_model.layers):
         if 'transformer_encoder' in layer.name:
           for k, transformer_sub_layer in enumerate(layer.layers):
-            if 'word_embeddings' not in transformer_sub_layer.name:
+            if 'word_embeddings' in transformer_sub_layer.name:
               word_embeddings_weights = pretrainer_model.layers[i].layers[j].get_weights()
-              logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
+              logging.info(f'gettting word_embeddings: {transformer_sub_layer.name}')
+              break
 
-    if word_embeddings_weights:
-        logging.info(f'Word Embeddings: {word_embeddings_weights.shape}')
+    assert word_embeddings_weights
 
     classifier_model = bert_models.classifier_model(model_config,
                                                     input_meta_data['num_labels'],
@@ -404,6 +404,13 @@ def run_bert(strategy,
                  'checkpoint', latest_checkpoint_file)
     checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched()
 
+    for i, layer in enumerate(classifier_model.layers):
+        if 'transformer_encoder' in layer.name:
+          for k, transformer_sub_layer in enumerate(layer.layers):
+            if 'word_embeddings' in transformer_sub_layer.name:
+              pretrainer_model.layers[i].layers[j].set_weights(word_embeddings_weights)
+              logging.info(f'setting word_embeddings: {transformer_sub_layer.name}')
+              break
 
     logging.info('######Summary classifier_model######')
     logging.info(classifier_model.summary())
