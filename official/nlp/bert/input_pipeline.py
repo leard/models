@@ -40,6 +40,7 @@ def single_file_dataset(input_file, name_to_features):
   """Creates a single-file dataset to be passed for BERT custom training."""
   # For training, we want a lot of parallel reading and shuffling.
   # For eval, we want no shuffling and parallel reading doesn't matter.
+  print(input_file, name_to_features)
   d = tf.data.TFRecordDataset(input_file)
   d = d.map(lambda record: decode_record(record, name_to_features))
 
