@@ -369,7 +369,7 @@ def run_bert(strategy,
                       FLAGS.use_keras_compile_fit,
                       model_config, FLAGS.model_dir)
     return
-  
+
   if FLAGS.mode == 'transfer_learning':
 
     pretrainer_model = bert_models.pretrain_model(model_config, 512, 128)
