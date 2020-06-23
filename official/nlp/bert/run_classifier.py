@@ -412,7 +412,7 @@ def run_bert(strategy,
     checkpoint.restore(latest_checkpoint_file).expect_partial() #.assert_existing_objects_matched() #.expect_partial()
     logging.info(classifier_model.summary())
 
-
+    word_embeddings_weights_class = None
     for i, layer in enumerate(classifier_model.layers):
       if 'transformer_encoder' in layer.name:
         transformer_encoder_layer = layer
@@ -420,13 +420,15 @@ def run_bert(strategy,
         for j, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
           if 'word_embeddings' in transformer_sub_layer.name:
             logging.info(f'word_embeddings setting weights: {transformer_sub_layer.name}')
-            pretrain_model.layers[i].layers[j].set_weights(word_embeddings_weights)
+            classifier_model.layers[i].layers[j].set_weights(word_embeddings_weights)
+            word_embeddings_weights_class = classifier_model.layers[i].layers[j].get_weights()
         #     logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
         #     transformer_encoder_layer = bert_sub_layer
         #     for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
         #       if 'word_embeddings' in transformer_sub_layer.name:
         #         logging.info(f'word_embeddings getting weights: {transformer_sub_layer.name}')
         #         pretrain_model.layers[i].layers[j].layers[k].set_weights(word_embeddings_weights)
+    word_embeddings_weights.assert_array_equal(word_embeddings_weights_class)
     #
     # logging.info('######Summary classifier_model######')
     # #logging.info(classifier_model.summary())
