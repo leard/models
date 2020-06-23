@@ -384,8 +384,8 @@ def run_bert(strategy,
     output_predict_file = os.path.join(FLAGS.model_dir, 'test_results.tsv')
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
       logging.info('***** Predict results *****')
-      for probabilities, label in zip(preds, labels):
-        output_line = '\t' + str(probabilities) + '\t' + label + '\n'
+      for probabilities in preds:
+        output_line = '\t' + str(probabilities) + '\n'
         writer.write(output_line)
     return
 
