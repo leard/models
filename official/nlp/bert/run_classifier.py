@@ -422,19 +422,14 @@ def run_bert(strategy,
             logging.info(f'word_embeddings setting weights: {transformer_sub_layer.name}')
             classifier_model.layers[i].layers[j].set_weights(word_embeddings_weights)
             word_embeddings_weights_class = classifier_model.layers[i].layers[j].get_weights()
-        #     logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
-        #     transformer_encoder_layer = bert_sub_layer
-        #     for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
-        #       if 'word_embeddings' in transformer_sub_layer.name:
-        #         logging.info(f'word_embeddings getting weights: {transformer_sub_layer.name}')
-        #         pretrain_model.layers[i].layers[j].layers[k].set_weights(word_embeddings_weights)
-    logging.info(f'word_embeddings_weights: {word_embeddings_weights[0]}')
-    logging.info(f'word_embeddings_weights_class: {word_embeddings_weights_class[0]}')
-    word_embeddings_weights.testing.assert_array_equal(word_embeddings_weights_class)
-    #
-    # logging.info('######Summary classifier_model######')
+
+    logging.info(f'word_embeddings_weights Transfer: {word_embeddings_weights[0]}')
+    logging.info(f'word_embeddings_weights Task    : {word_embeddings_weights_class[0]}')
+
+
+    logging.info('######Summary classifier_model######')
     # #logging.info(classifier_model.summary())
-    # classifier_model.save(FLAGS.model_dir + '/transfer_learning')
+    classifier_model.save(FLAGS.model_dir + '/transfer_learning')
     return
 
   if FLAGS.mode == 'predict':
