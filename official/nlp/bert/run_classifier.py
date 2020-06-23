@@ -385,7 +385,7 @@ def run_bert(strategy,
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
       logging.info('***** Predict results *****')
       for probabilities in preds:
-        output_line = '\t'.join(str(class_probability) for class_probability in probabilities) + '\n'
+        output_line = '\t' + str(probabilities) + '\n'
         writer.write(output_line)
     return
 
