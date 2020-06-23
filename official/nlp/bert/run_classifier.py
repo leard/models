@@ -364,11 +364,12 @@ def run_bert(strategy,
     # As Keras ModelCheckpoint callback used with Keras compile/fit() API
     # internally uses model.save_weights() to save checkpoints, we must
     # use model.load_weights() when Keras compile/fit() is used.
-    export_classifier(FLAGS.model_export_path, input_meta_data,
-                      FLAGS.use_keras_compile_fit,
-                      model_config, FLAGS.model_dir)
+    # export_classifier(FLAGS.model_export_path, input_meta_data,
+    #                   FLAGS.use_keras_compile_fit,
+    #                   model_config, FLAGS.model_dir)
     # Create a basic model instance
-    classifier_model = tf.saved_model.load(FLAGS.model_export_path)
+    classifier_model = tf.keras.models.load_model(FLAGS.model_export_path)
+    #classifier_model = tf.saved_model.load(FLAGS.model_export_path)
     logging.info(classifier_model)
     return
   if FLAGS.mode == 'predict':
