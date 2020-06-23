@@ -371,11 +371,19 @@ def run_bert(strategy,
     return
   if FLAGS.mode == 'transfer_learning':
     assert FLAGS.predict_checkpoint_path
-    loaded = tf.saved_model.load(FLAGS.predict_checkpoint_path)
-    restored = loaded.restore(FLAGS.model_dir)
-    logging.info(restored)
+    classifier_model = bert_models.classifier_model(model_config,
+                                                    input_meta_data['num_labels'],
+                                                    input_meta_data['max_seq_length'])[0]
+    checkpoint = tf.train.Checkpoint(model=classifier_model)
+    latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.model_dir)
+    assert latest_checkpoint_file
+    logging.info('Checkpoint file %s found and restoring from '
+                 'checkpoint', latest_checkpoint_file)
+    checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched()
 
-  return
+    classifier_model.summary()
+
+    return
   if FLAGS.mode == 'predict':
     with strategy.scope():
       test_steps = int(math.ceil(input_meta_data['test_data_size'] / FLAGS.test_batch_size))
