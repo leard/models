@@ -372,11 +372,8 @@ def run_bert(strategy,
   if FLAGS.mode == 'transfer_learning':
     assert FLAGS.predict_checkpoint_path
     loaded = tf.saved_model.load(FLAGS.predict_checkpoint_path)
-    print("BraBERT has {} trainable variables: \n{},".format(len(loaded.trainable_variables),", ".join([v.name for v in loaded.trainable_variables])))
-    logging.info(loaded)
-    for variable in loaded.variables:
-        logging.info(f'Variable Name: {variable.name}')
-    logging.info(loaded.signatures)
+    restored = loaded.restore(FLAGS.model_dir)
+    logging.info(restored)
 
   return
   if FLAGS.mode == 'predict':
