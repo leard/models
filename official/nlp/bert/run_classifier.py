@@ -370,7 +370,7 @@ def run_bert(strategy,
     return
   if FLAGS.mode == 'transfer_learning':
     loaded = tf.saved_model.load(FLAGS.predict_checkpoint_path)
-    print("BraBERT has {} trainable variables: \n{},".format(len(loaded.trainable_variables),", ".join([v.name for v in loaded.trainable_variables)))
+    print("BraBERT has {} trainable variables: \n{},".format(len(loaded.trainable_variables),", ".join([v.name for v in loaded.trainable_variables])))
   return
   if FLAGS.mode == 'predict':
     with strategy.scope():
