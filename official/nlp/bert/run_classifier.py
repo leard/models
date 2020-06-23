@@ -99,7 +99,7 @@ def get_loss_fn(num_classes):
 
 
 def get_dataset_fn(input_file_pattern, max_seq_length, global_batch_size,
-                   is_training, label_type=tf.int64, include_sample_weights=False):
+                   is_training):
   """Gets a closure to create a dataset."""
 
   def _dataset_fn(ctx=None):
@@ -111,10 +111,7 @@ def get_dataset_fn(input_file_pattern, max_seq_length, global_batch_size,
         max_seq_length,
         batch_size,
         is_training=is_training,
-        input_pipeline_context=ctx,
-        label_type=label_type,
-        include_sample_weights=include_sample_weights
-    )
+        input_pipeline_context=ctx)
     return dataset
 
   return _dataset_fn
@@ -263,70 +260,19 @@ def run_keras_compile_fit(model_dir,
     return bert_model
 
 
-# def get_predictions_and_labels(strategy, trained_model, eval_input_fn,
-#                                eval_steps):
-#   """Obtains predictions of trained model on evaluation data.
-#
-#   Note that list of labels is returned along with the predictions because the
-#   order changes on distributing dataset over TPU pods.
-#
-#   Args:
-#     strategy: Distribution strategy.
-#     trained_model: Trained model with preloaded weights.
-#     eval_input_fn: Input function for evaluation data.
-#     eval_steps: Number of evaluation steps.
-#
-#   Returns:
-#     predictions: List of predictions.
-#     labels: List of gold labels corresponding to predictions.
-#   """
-#
-#   @tf.function
-#   def test_step(iterator):
-#     """Computes predictions on distributed devices."""
-#
-#     def _test_step_fn(inputs):
-#       """Replicated predictions."""
-#       inputs, labels = inputs
-#       model_outputs = trained_model(inputs, training=False)
-#       return model_outputs, labels
-#
-#     outputs, labels = strategy.run(
-#         _test_step_fn, args=(next(iterator),))
-#     # outputs: current batch logits as a tuple of shard logits
-#     outputs = tf.nest.map_structure(strategy.experimental_local_results,
-#                                     outputs)
-#     labels = tf.nest.map_structure(strategy.experimental_local_results, labels)
-#     return outputs, labels
-#
-#   def _run_evaluation(test_iterator):
-#     """Runs evaluation steps."""
-#     preds, golds = list(), list()
-#     for _ in range(eval_steps):
-#       logits, labels = test_step(test_iterator)
-#       for cur_logits, cur_labels in zip(logits, labels):
-#         preds.extend(tf.math.argmax(cur_logits, axis=1).numpy())
-#         golds.extend(cur_labels.numpy().tolist())
-#     return preds, golds
-#
-#   test_iter = iter(
-#       strategy.experimental_distribute_datasets_from_function(eval_input_fn))
-#   predictions, labels = _run_evaluation(test_iter)
-#
-#   return predictions, labels
-
-def get_predictions_and_labels(strategy,
-                               trained_model,
-                               eval_input_fn,
-                               return_probs=False):
+def get_predictions_and_labels(strategy, trained_model, eval_input_fn,
+                               eval_steps):
   """Obtains predictions of trained model on evaluation data.
+
   Note that list of labels is returned along with the predictions because the
   order changes on distributing dataset over TPU pods.
+
   Args:
     strategy: Distribution strategy.
     trained_model: Trained model with preloaded weights.
     eval_input_fn: Input function for evaluation data.
-    return_probs: Whether to return probabilities of classes.
+    eval_steps: Number of evaluation steps.
+
   Returns:
     predictions: List of predictions.
     labels: List of gold labels corresponding to predictions.
@@ -339,11 +285,11 @@ def get_predictions_and_labels(strategy,
     def _test_step_fn(inputs):
       """Replicated predictions."""
       inputs, labels = inputs
-      logits = trained_model(inputs, training=False)
-      probabilities = tf.nn.softmax(logits)
-      return probabilities, labels
+      model_outputs = trained_model(inputs, training=False)
+      return model_outputs, labels
 
-    outputs, labels = strategy.run(_test_step_fn, args=(next(iterator),))
+    outputs, labels = strategy.run(
+        _test_step_fn, args=(next(iterator),))
     # outputs: current batch logits as a tuple of shard logits
     outputs = tf.nest.map_structure(strategy.experimental_local_results,
                                     outputs)
@@ -353,18 +299,11 @@ def get_predictions_and_labels(strategy,
   def _run_evaluation(test_iterator):
     """Runs evaluation steps."""
     preds, golds = list(), list()
-    try:
-      with tf.experimental.async_scope():
-        while True:
-          probabilities, labels = test_step(test_iterator)
-          for cur_probs, cur_labels in zip(probabilities, labels):
-            if return_probs:
-              preds.extend(cur_probs.numpy().tolist())
-            else:
-              preds.extend(tf.math.argmax(cur_probs, axis=1).numpy())
-            golds.extend(cur_labels.numpy().tolist())
-    except (StopIteration, tf.errors.OutOfRangeError):
-      tf.experimental.async_clear_error()
+    for _ in range(eval_steps):
+      logits, labels = test_step(test_iterator)
+      for cur_logits, cur_labels in zip(logits, labels):
+        preds.extend(tf.math.argmax(cur_logits, axis=1).numpy())
+        golds.extend(cur_labels.numpy().tolist())
     return preds, golds
 
   test_iter = iter(
@@ -372,6 +311,7 @@ def get_predictions_and_labels(strategy,
   predictions, labels = _run_evaluation(test_iter)
 
   return predictions, labels
+
 
 def export_classifier(model_export_path, input_meta_data,
                       restore_model_using_load_weights, bert_config, model_dir):
@@ -430,7 +370,7 @@ def run_bert(strategy,
     return
   if FLAGS.mode == 'predict':
     with strategy.scope():
-      #test_steps = int(math.ceil(input_meta_data['test_data_size'] / FLAGS.test_batch_size))
+      test_steps = int(math.ceil(input_meta_data['test_data_size'] / FLAGS.test_batch_size))
       classifier_model = bert_models.classifier_model(model_config,
                                                       input_meta_data['num_labels'],
                                                       input_meta_data['max_seq_length'])[0]
@@ -440,7 +380,7 @@ def run_bert(strategy,
       logging.info('Checkpoint file %s found and restoring from '
                    'checkpoint', latest_checkpoint_file)
       checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched()
-      preds, _ = get_predictions_and_labels(strategy, classifier_model, test_input_fn, return_probs=True)
+      preds, _ = get_predictions_and_labels(strategy, classifier_model, test_input_fn, test_steps)
     output_predict_file = os.path.join(FLAGS.model_dir, 'test_results.tsv')
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
       logging.info('***** Predict results *****')
