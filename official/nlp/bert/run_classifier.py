@@ -384,7 +384,7 @@ def run_bert(strategy,
     logging.info(pretrain_model.summary())
 
     word_embeddings_weights = None
-    for i, layer in enumerate(pretrainer_model.layers):
+    for i, layer in enumerate(pretrain_model.layers):
         if 'transformer_encoder' in layer.name:
           for k, transformer_sub_layer in enumerate(layer.layers):
             if 'word_embeddings' in transformer_sub_layer.name:
@@ -392,12 +392,12 @@ def run_bert(strategy,
               logging.info(f'gettting word_embeddings: {transformer_sub_layer.name}')
               break
 
-    # #assert word_embeddings_weights
-    #
-    # classifier_model = bert_models.classifier_model(model_config,
-    #                                                 input_meta_data['num_labels'],
-    #                                                 input_meta_data['max_seq_length'])[0]
-    # checkpoint = tf.train.Checkpoint(model=classifier_model)
+    assert word_embeddings_weights
+
+    classifier_model, bert_model = bert_models.classifier_model(model_config,
+                                                                input_meta_data['num_labels'],
+                                                                input_meta_data['max_seq_length'])[0]
+    # checkpoint = tf.train.Checkpoint(model=bert_model)
     # latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.model_dir)
     # assert latest_checkpoint_file
     # logging.info('Checkpoint file %s found and restoring from '
