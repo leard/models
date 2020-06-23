@@ -368,10 +368,7 @@ def run_bert(strategy,
                       FLAGS.use_keras_compile_fit,
                       model_config, FLAGS.model_dir)
     # Create a basic model instance
-    classifier_model = bert_models.classifier_model(model_config,
-                                                    input_meta_data['num_labels'],
-                                                    input_meta_data['max_seq_length'])[0]
-    classifier_model.load(FLAGS.model_export_path)
+    classifier_model = tf.saved_model.load(FLAGS.model_export_path)
     classifier_model.summary()
     return
   if FLAGS.mode == 'predict':
