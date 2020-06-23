@@ -370,6 +370,7 @@ def run_bert(strategy,
     return
   if FLAGS.mode == 'predict':
     with strategy.scope():
+      test_steps = int(math.ceil(input_meta_data['test_data_size'] / FLAGS.test_batch_size))
       classifier_model = bert_models.classifier_model(model_config,
                                                       input_meta_data['num_labels'],
                                                       input_meta_data['max_seq_length'])[0]
@@ -379,7 +380,7 @@ def run_bert(strategy,
       logging.info('Checkpoint file %s found and restoring from '
                    'checkpoint', latest_checkpoint_file)
       checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched()
-      preds, _ = get_predictions_and_labels(strategy, classifier_model, test_input_fn, return_probs=True)
+      preds, _ = get_predictions_and_labels(strategy, classifier_model, test_input_fn, test_steps)
     output_predict_file = os.path.join(FLAGS.model_dir, 'test_results.tsv')
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
       logging.info('***** Predict results *****')
