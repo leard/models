@@ -630,6 +630,9 @@ def generate_tf_record_from_data_file(processor,
         will be saved.
       eval_data_output_path: Output to which processed tf record for evaluation
         will be saved.
+      test_data_output_path: Output to which processed tf record for testing
+        will be saved. Must be a pattern template with {} if processor has
+        language specific test data.
       max_seq_length: Maximum sequence length of the to be generated
         training/eval data.
 
