@@ -380,8 +380,8 @@ def run_bert(strategy,
     logging.info('Checkpoint file %s found and restoring from '
                  'checkpoint', latest_checkpoint_file)
     checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched()
-
-    classifier_model.summary()
+    logging.info('######Summary######')
+    logging.info(classifier_model.summary())
 
     return
   if FLAGS.mode == 'predict':
