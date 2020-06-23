@@ -39,7 +39,7 @@ from official.utils.misc import keras_utils
 
 
 flags.DEFINE_enum(
-    'mode', 'train_and_eval', ['train_and_eval', 'export_only', 'predict'],
+    'mode', 'train_and_eval', ['train_and_eval', 'export_only', 'predict', 'transfer_learning'],
     'One of {"train_and_eval", "export_only", "do_prediction"}. `train_and_eval`: '
     'trains the model and evaluates in the meantime. '
     '`export_only`: will take the latest checkpoint inside '
@@ -364,14 +364,14 @@ def run_bert(strategy,
     # As Keras ModelCheckpoint callback used with Keras compile/fit() API
     # internally uses model.save_weights() to save checkpoints, we must
     # use model.load_weights() when Keras compile/fit() is used.
-    # export_classifier(FLAGS.model_export_path, input_meta_data,
-    #                   FLAGS.use_keras_compile_fit,
-    #                   model_config, FLAGS.model_dir)
-    # Create a basic model instance
-    classifier_model = tf.keras.models.load_model(FLAGS.model_export_path)
-    #classifier_model = tf.saved_model.load(FLAGS.model_export_path)
-    logging.info(classifier_model)
+    export_classifier(FLAGS.model_export_path, input_meta_data,
+                      FLAGS.use_keras_compile_fit,
+                      model_config, FLAGS.model_dir)
     return
+  if FLAGS.mode == 'transfer_learning':
+    loaded = tf.saved_model.load(FLAGS.predict_checkpoint_path)
+    print("BraBERT has {} trainable variables: \n{},".format(len(loaded.trainable_variables),", ".join([v.name for v in loaded.trainable_variables)))
+  return
   if FLAGS.mode == 'predict':
     with strategy.scope():
       test_steps = int(math.ceil(input_meta_data['test_data_size'] / FLAGS.test_batch_size))
@@ -486,8 +486,7 @@ def main(_):
 
   bert_config = bert_configs.BertConfig.from_json_file(FLAGS.bert_config_file)
   model_trained = run_bert(strategy, input_meta_data, bert_config, train_input_fn, eval_input_fn, test_input_fn)
-  model_trained.save(FLAGS.model_dir+'/trained_model')
-
+  
 
 if __name__ == '__main__':
   flags.mark_flag_as_required('bert_config_file')
