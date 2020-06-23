@@ -78,13 +78,14 @@ flags.DEFINE_string(
 
 flags.DEFINE_string(
     "eval_data_output_path", None,
-    "The path in which generated training input data will be written as tf"
+    "The path in which generated evaluation input data will be written as tf"
     " records.")
 
 flags.DEFINE_string(
     "test_data_output_path", None,
     "The path in which generated test input data will be written as tf"
-    " records.")
+    " records. If None, do not generate test data. Must be a pattern template"
+    " as test_{}.tfrecords if processor has language specific test data.")
 
 flags.DEFINE_string("meta_data_file_path", None,
                     "The path in which input meta data will be written.")
@@ -148,6 +149,32 @@ def generate_classifier_dataset():
       test_data_output_path=FLAGS.test_data_output_path,
       max_seq_length=FLAGS.max_seq_length)
 
+def generate_regression_dataset():
+  """Generates regression dataset and returns input meta data."""
+  if FLAGS.tokenizer_impl == "word_piece":
+    tokenizer = tokenization.FullTokenizer(
+        vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
+    processor_text_fn = tokenization.convert_to_unicode
+  else:
+    assert FLAGS.tokenizer_impl == "sentence_piece"
+    tokenizer = tokenization.FullSentencePieceTokenizer(FLAGS.sp_model_file)
+    processor_text_fn = functools.partial(
+        tokenization.preprocess_text, lower=FLAGS.do_lower_case)
+
+  # if FLAGS.tfds_params:
+  #   processor = classifier_data_lib.TfdsProcessor(
+  #       tfds_params=FLAGS.tfds_params,
+  #       process_text_fn=processor_text_fn)
+  #   return classifier_data_lib.generate_tf_record_from_data_file(
+  #       processor,
+  #       None,
+  #       tokenizer,
+  #       train_data_output_path=FLAGS.train_data_output_path,
+  #       eval_data_output_path=FLAGS.eval_data_output_path,
+  #       test_data_output_path=FLAGS.test_data_output_path,
+  #       max_seq_length=FLAGS.max_seq_length)
+  # else:
+  #   raise ValueError("No data processor found for the given regression task.")
 
 def generate_squad_dataset():
   """Generates squad training dataset and returns input meta data."""
