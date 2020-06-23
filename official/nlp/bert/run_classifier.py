@@ -374,9 +374,9 @@ def run_bert(strategy,
     loaded = tf.saved_model.load(FLAGS.predict_checkpoint_path)
     print("BraBERT has {} trainable variables: \n{},".format(len(loaded.trainable_variables),", ".join([v.name for v in loaded.trainable_variables])))
     logging.info(loaded)
-    for layer in loaded.layers:
-        logging.info(f'Layer Name: {layer.name}')
-    loaded.summary()
+    for variable in loaded.variables:
+        logging.info(f'Variable Name: {variable.name}')
+    
   return
   if FLAGS.mode == 'predict':
     with strategy.scope():
