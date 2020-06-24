@@ -413,7 +413,9 @@ def run_bert(strategy,
       classifier_model = bert_models.classifier_model(model_config,
                                                       input_meta_data['num_labels'],
                                                       input_meta_data['max_seq_length'])[0]
+
       logging.info(f'classifier_model before:{classifier_model.layers[3].layers[1].get_weights()[0]}')
+
       checkpoint = tf.train.Checkpoint(model=classifier_model)
       latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.model_dir)
       assert latest_checkpoint_file
