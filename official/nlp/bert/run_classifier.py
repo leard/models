@@ -39,8 +39,10 @@ from official.utils.misc import keras_utils
 
 
 flags.DEFINE_enum(
-    'mode', 'train_and_eval', ['train_and_eval', 'export_only', 'predict', 'transfer_learning'],
-    'One of {"train_and_eval", "export_only", "do_prediction"}. `train_and_eval`: '
+    'mode', 'train_and_eval', ['train_and_eval', 'export_only',
+                               'predict', 'transfer_learning',
+                               'transfer_learning_and_predict'],
+    'One of {"train_and_eval", "export_only", "predict"}. `train_and_eval`: '
     'trains the model and evaluates in the meantime. '
     '`export_only`: will take the latest checkpoint inside '
     'model_dir and export a `SavedModel`.  `predict`: takes a checkpoint and '
@@ -58,6 +60,9 @@ flags.DEFINE_string(
     'to be used for training and evaluation.')
 flags.DEFINE_string('predict_checkpoint_path', None,
                     'Path to the checkpoint for predictions.')
+
+flags.DEFINE_string('output_dir', None,
+                    'Path for predictions.')
 
 flags.DEFINE_integer('train_batch_size', 32, 'Batch size for training.')
 flags.DEFINE_integer('eval_batch_size', 32, 'Batch size for evaluation.')
@@ -370,6 +375,76 @@ def run_bert(strategy,
                       model_config, FLAGS.model_dir)
     return
 
+  if FLAGS.mode == 'transfer_learning_and_predict':
+    assert FLAGS.output_dir
+    with strategy.scope():
+      test_steps = int(math.ceil(input_meta_data['test_data_size'] / FLAGS.test_batch_size))
+      pretrain_model, core_model = bert_models.pretrain_model(model_config, 512, 128)
+
+      checkpoint_giver = tf.train.Checkpoint(model=core_model)
+      latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.predict_checkpoint_path)
+      assert latest_checkpoint_file
+      logging.info('Checkpoint file %s found and restoring from '
+                   'checkpoint', latest_checkpoint_file)
+      checkpoint_giver.restore(latest_checkpoint_file).assert_existing_objects_matched()  # .expect_partial()
+      logging.info('######Summary pretrainer_model######')
+      logging.info(pretrain_model.summary())
+      logging.info(core_model.summary())
+      # TODO: Check embedding is equal
+
+      word_embeddings_weights = None
+      for i, layer in enumerate(pretrain_model.layers):
+          if 'bert_pretrainer' in layer.name:
+              bert_pretrainer_layer = layer
+              logging.info(f'Layer Name: {bert_pretrainer_layer.name}')
+              for j, bert_sub_layer in enumerate(bert_pretrainer_layer.layers):
+                  if 'transformer_encoder' in bert_sub_layer.name:
+                      logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
+                      transformer_encoder_layer = bert_sub_layer
+                      for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
+                          if 'word_embeddings' in transformer_sub_layer.name:
+                              logging.info(f'word_embeddings getting weights: {transformer_sub_layer.name}')
+                              word_embeddings_weights = pretrain_model.layers[i].layers[j].layers[k].get_weights()
+
+      assert word_embeddings_weights
+
+      classifier_model = bert_models.classifier_model(model_config,
+                                                      input_meta_data['num_labels'],
+                                                      input_meta_data['max_seq_length'])[0]
+      checkpoint = tf.train.Checkpoint(model=classifier_model)
+      latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.model_dir)
+      assert latest_checkpoint_file
+      logging.info('Checkpoint file %s found and restoring from '
+                   'checkpoint', latest_checkpoint_file)
+      checkpoint.restore(
+          latest_checkpoint_file).expect_partial()  # .assert_existing_objects_matched() #.expect_partial()
+      logging.info(classifier_model.summary())
+
+      word_embeddings_weights_class = None
+      for i, layer in enumerate(classifier_model.layers):
+          if 'transformer_encoder' in layer.name:
+              transformer_encoder_layer = layer
+              logging.info(f'Layer Name: {transformer_encoder_layer.name}')
+              for j, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
+                  if 'word_embeddings' in transformer_sub_layer.name:
+                      logging.info(f'word_embeddings setting weights: {transformer_sub_layer.name}')
+                      classifier_model.layers[i].layers[j].set_weights(word_embeddings_weights)
+                      word_embeddings_weights_class = classifier_model.layers[i].layers[j].get_weights()
+
+      logging.info(f'word_embeddings_weights Transfer: {word_embeddings_weights[0]}')
+      logging.info(f'word_embeddings_weights Task    : {word_embeddings_weights_class[0]}')
+      preds, labels = get_predictions_and_labels(strategy, classifier_model, test_input_fn, test_steps)
+    output_predict_file = os.path.join(FLAGS.output_dir, 'test_results.tsv')
+    with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
+        sum_equals = sum(x == y for x, y in zip(preds, labels))
+        writer.write('{')
+        writer.write(f'"labels":{labels}\n')
+        writer.write(f'"preds":{preds}\n')
+        writer.write(f'"accuracy":{sum_equals / len(preds)}\n')
+        writer.write('}')
+        logging.info('***** Predict results *****')
+    return
+
   if FLAGS.mode == 'transfer_learning':
 
     pretrain_model, core_model = bert_models.pretrain_model(model_config, 512, 128)
@@ -433,6 +508,7 @@ def run_bert(strategy,
     return
 
   if FLAGS.mode == 'predict':
+    assert FLAGS.output_dir
     with strategy.scope():
       test_steps = int(math.ceil(input_meta_data['test_data_size'] / FLAGS.test_batch_size))
       classifier_model = bert_models.classifier_model(model_config,
@@ -445,7 +521,7 @@ def run_bert(strategy,
                    'checkpoint', latest_checkpoint_file)
       checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched()
       preds, labels = get_predictions_and_labels(strategy, classifier_model, test_input_fn, test_steps)
-    output_predict_file = os.path.join(FLAGS.model_dir, 'test_results.tsv')
+    output_predict_file = os.path.join(FLAGS.output_dir, 'test_results.tsv')
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
       sum_equals = sum(x == y for x, y in zip(preds, labels))
       writer.write('{')
