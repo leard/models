@@ -439,6 +439,7 @@ def run_bert(strategy,
 
       logging.info(f'word_embeddings_weights Transfer: {word_embeddings_weights[0]}')
       logging.info(f'word_embeddings_weights Task    : {word_embeddings_weights_class[0]}')
+    #   preds, labels = get_predictions_and_labels(strategy, classifier_model, test_input_fn, test_steps)
     # output_predict_file = os.path.join(FLAGS.output_dir, 'test_results.tsv')
     # with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
     #     sum_equals = sum(x == y for x, y in zip(preds, labels))
