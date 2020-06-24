@@ -410,19 +410,18 @@ def run_bert(strategy,
 
     assert word_embeddings_weights
 
-    classifier_model = bert_models.classifier_model(model_config,
+    classifier_model, bert_model = bert_models.classifier_model(model_config,
                                                   input_meta_data['num_labels'],
-                                                  input_meta_data['max_seq_length'])[0]
+                                                  input_meta_data['max_seq_length'])
 
     logging.info(f'classifier_model before:{classifier_model.layers[3].layers[1].get_weights()[0]}')
 
-    checkpoint = tf.train.Checkpoint(model=classifier_model)
+    checkpoint = tf.train.Checkpoint(model=bert_model)
     latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.model_dir)
     assert latest_checkpoint_file
     logging.info('Checkpoint file %s found and restoring from '
                'checkpoint', latest_checkpoint_file)
-    checkpoint.restore(
-      latest_checkpoint_file).expect_partial()  # .assert_existing_objects_matched() #.expect_partial()
+    checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched() #.expect_partial()
     logging.info(classifier_model.summary())
 
     word_embeddings_weights_class = None
