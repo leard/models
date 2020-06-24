@@ -381,6 +381,8 @@ def run_bert(strategy,
       test_steps = int(math.ceil(input_meta_data['test_data_size'] / FLAGS.test_batch_size))
       pretrain_model, core_model = bert_models.pretrain_model(model_config, 512, 128)
 
+      #logging.info(pretrain_model.layers[i].layers[j].layers[k].get_weights()[0])
+
       checkpoint_giver = tf.train.Checkpoint(model=core_model)
       latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.predict_checkpoint_path)
       assert latest_checkpoint_file
@@ -403,7 +405,7 @@ def run_bert(strategy,
                       transformer_encoder_layer = bert_sub_layer
                       for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
                           if 'word_embeddings' in transformer_sub_layer.name:
-                              logging.info(f'word_embeddings eetting weights [{i}], [{j}]: {pretrain_model.layers[i].layers[j].layers[k].get_weights()[0]}')
+                              logging.info(f'word_embeddings eetting weights [{i}], [{j}], [{k}]: {pretrain_model.layers[i].layers[j].layers[k].get_weights()[0]}')
                               word_embeddings_weights = pretrain_model.layers[i].layers[j].layers[k].get_weights()
 
       assert word_embeddings_weights
@@ -432,8 +434,8 @@ def run_bert(strategy,
                       classifier_model.layers[i].layers[j].set_weights(word_embeddings_weights)
 
 
-      logging.info(f'word_embeddings_weights Transfer: {word_embeddings_weights[0][100]}')
-      logging.info(f'word_embeddings_weights Task    : {word_embeddings_weights_class[0][100]}')
+      logging.info(f'word_embeddings_weights Transfer: {word_embeddings_weights[0]}')
+      logging.info(f'word_embeddings_weights Task    : {word_embeddings_weights_class[0]}')
       preds, labels = get_predictions_and_labels(strategy, classifier_model, test_input_fn, test_steps)
     output_predict_file = os.path.join(FLAGS.output_dir, 'test_results.tsv')
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
