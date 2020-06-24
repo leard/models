@@ -403,7 +403,7 @@ def run_bert(strategy,
                       transformer_encoder_layer = bert_sub_layer
                       for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
                           if 'word_embeddings' in transformer_sub_layer.name:
-                              logging.info(f'word_embeddings getting weights: {transformer_sub_layer.name}')
+                              logging.info(f'word_embeddings getting weights [{i}], [{j}]: {transformer_sub_layer.name}')
                               word_embeddings_weights = pretrain_model.layers[i].layers[j].layers[k].get_weights()
 
       assert word_embeddings_weights
@@ -427,9 +427,10 @@ def run_bert(strategy,
               logging.info(f'Layer Name: {transformer_encoder_layer.name}')
               for j, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
                   if 'word_embeddings' in transformer_sub_layer.name:
-                      logging.info(f'word_embeddings setting weights: {transformer_sub_layer.name}')
-                      classifier_model.layers[i].layers[j].set_weights(word_embeddings_weights)
+                      logging.info(f'word_embeddings setting weights [{i}], [{j}]: {transformer_sub_layer.name}')
                       word_embeddings_weights_class = classifier_model.layers[i].layers[j].get_weights()
+                      classifier_model.layers[i].layers[j].set_weights(word_embeddings_weights)
+
 
       logging.info(f'word_embeddings_weights Transfer: {word_embeddings_weights[0]}')
       logging.info(f'word_embeddings_weights Task    : {word_embeddings_weights_class[0]}')
