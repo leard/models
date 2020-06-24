@@ -156,6 +156,7 @@ class XnliProcessor(DataProcessor):
     """See base class."""
     return "XNLI"
 
+
 class AssinProcessor(DataProcessor):
   """Processor for the ASSIN data set (Leard version)."""
 
@@ -197,6 +198,7 @@ class AssinProcessor(DataProcessor):
       examples.append(
           InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
     return examples
+
 
 class NliProcessor(DataProcessor):
   """Processor for the NLI data set (Leard version)."""
