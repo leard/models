@@ -403,7 +403,7 @@ def run_bert(strategy,
                       transformer_encoder_layer = bert_sub_layer
                       for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
                           if 'word_embeddings' in transformer_sub_layer.name:
-                              logging.info(f'word_embeddings eetting weights [{i}], [{j}]: {pretrain_model.layers[i].layers[j].layers[k].get_weights()[1]}')
+                              logging.info(f'word_embeddings eetting weights [{i}], [{j}]: {pretrain_model.layers[i].layers[j].layers[k].get_weights()[0]}')
                               word_embeddings_weights = pretrain_model.layers[i].layers[j].layers[k].get_weights()
 
       assert word_embeddings_weights
@@ -427,13 +427,13 @@ def run_bert(strategy,
               logging.info(f'Layer Name: {transformer_encoder_layer.name}')
               for j, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
                   if 'word_embeddings' in transformer_sub_layer.name:
-                      logging.info(f'word_embeddings setting weights [{i}], [{j}]: {classifier_model.layers[i].layers[j].get_weights()[1]}')
+                      logging.info(f'word_embeddings setting weights [{i}], [{j}]: {classifier_model.layers[i].layers[j].get_weights()[0]}')
                       word_embeddings_weights_class = classifier_model.layers[i].layers[j].get_weights()
                       classifier_model.layers[i].layers[j].set_weights(word_embeddings_weights)
 
 
-      logging.info(f'word_embeddings_weights Transfer: {word_embeddings_weights[0]}')
-      logging.info(f'word_embeddings_weights Task    : {word_embeddings_weights_class[0]}')
+      logging.info(f'word_embeddings_weights Transfer: {word_embeddings_weights[0][100]}')
+      logging.info(f'word_embeddings_weights Task    : {word_embeddings_weights_class[0][100]}')
       preds, labels = get_predictions_and_labels(strategy, classifier_model, test_input_fn, test_steps)
     output_predict_file = os.path.join(FLAGS.output_dir, 'test_results.tsv')
     with tf.io.gfile.GFile(output_predict_file, 'w') as writer:
