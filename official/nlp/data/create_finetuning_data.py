@@ -124,7 +124,7 @@ def generate_classifier_dataset():
       "xnli": classifier_data_lib.XnliProcessor,
       "nli": classifier_data_lib.NliProcessor,
       "assin": classifier_data_lib.AssinProcessor,
-      "sickbr": classifier_data_lib.SickBrProcessor
+      "sickbr": classifier_data_lib.SickBrProcessor,
   }
   task_name = FLAGS.classification_task_name.lower()
   if task_name not in processors:
