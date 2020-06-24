@@ -404,10 +404,10 @@ def run_bert(strategy,
             if 'transformer_encoder' in bert_sub_layer.name:
               logging.info(f'#bert_sub_layer: {bert_sub_layer.name}')
               transformer_encoder_layer = bert_sub_layer
-                for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
-                  if 'word_embeddings' in transformer_sub_layer.name:
-                    logging.info(f'word_embeddings getting weights [{i}], [{j}], [{k}]: {pretrain_model.layers[i].layers[j].layers[k].get_weights()[0]}')
-                    word_embeddings_weights = pretrain_model.layers[i].layers[j].layers[k].get_weights()
+              for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
+                if 'word_embeddings' in transformer_sub_layer.name:
+                  logging.info(f'word_embeddings getting weights [{i}], [{j}], [{k}]: {pretrain_model.layers[i].layers[j].layers[k].get_weights()[0]}')
+                  word_embeddings_weights = pretrain_model.layers[i].layers[j].layers[k].get_weights()
 
       assert word_embeddings_weights
 
