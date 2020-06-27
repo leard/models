@@ -379,19 +379,19 @@ def run_bert(strategy,
     assert FLAGS.output_dir
     with strategy.scope():
       test_steps = int(math.ceil(input_meta_data['test_data_size'] / FLAGS.test_batch_size))
-      # pretrain_model, core_model = bert_models.pretrain_model(model_config, 512, 128)
-      #
-      # logging.info(f'pretrain_model before:{pretrain_model.layers[4].layers[3].layers[1].get_weights()[0]}')
-      #
-      # checkpoint_giver = tf.train.Checkpoint(model=core_model)
-      # latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.predict_checkpoint_path)
-      # assert latest_checkpoint_file
-      # logging.info('Checkpoint file %s found and restoring from '
-      #              'checkpoint', latest_checkpoint_file)
-      # checkpoint_giver.restore(latest_checkpoint_file).assert_existing_objects_matched()  # .expect_partial()
-      # logging.info('######Summary pretrainer_model######')
-      # logging.info(pretrain_model.summary())
-      # logging.info(core_model.summary())
+      pretrain_model, core_model = bert_models.pretrain_model(model_config, 512, 128)
+
+      #logging.info(f'pretrain_model before:{pretrain_model.layers[4].layers[3].layers[1].get_weights()[0]}')
+
+      checkpoint_giver = tf.train.Checkpoint(model=core_model)
+      latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.predict_checkpoint_path)
+      assert latest_checkpoint_file
+      logging.info('Checkpoint file %s found and restoring from '
+                   'checkpoint', latest_checkpoint_file)
+      checkpoint_giver.restore(latest_checkpoint_file).assert_existing_objects_matched()  # .expect_partial()
+      logging.info('######Summary pretrainer_model######')
+      logging.info(pretrain_model.summary())
+      logging.info(core_model.summary())
 
       # TODO: Check embedding is equal
 
@@ -415,7 +415,7 @@ def run_bert(strategy,
                                                   input_meta_data['num_labels'],
                                                   input_meta_data['max_seq_length'])
 
-      logging.info(f'classifier_model before:{classifier_model.layers[3].layers[1].get_weights()[0]}')
+      # logging.info(f'classifier_model before:{classifier_model.layers[3].layers[1].get_weights()[0]}')
       logging.info(bert_model.summary())
       checkpoint = tf.train.Checkpoint(model=classifier_model)
       latest_checkpoint_file = tf.train.latest_checkpoint(FLAGS.model_dir)
@@ -425,7 +425,7 @@ def run_bert(strategy,
       checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched() #.expect_partial()
       logging.info(classifier_model.summary())
 
-      #classifier_model.layers[3].layers[1].set_weights(pretrain_model.layers[4].layers[3].layers[1].get_weights())
+      classifier_model.layers[3].layers[1].set_weights(pretrain_model.layers[4].layers[3].layers[1].get_weights())
 
       # word_embeddings_weights_class = None
       # for i, layer in enumerate(classifier_model.layers):
