@@ -48,15 +48,8 @@ flags.DEFINE_integer('num_steps_per_epoch', 1000,
                      'Total number of training steps to run per epoch.')
 flags.DEFINE_float('warmup_steps', 10000,
                    'Warmup steps for Adam weight decay optimizer.')
-flags.DEFINE_bool('freeze_embeddings', False, 'Freeze embedding layers')
 
-flags.DEFINE_bool('freeze_layers', False, 'Freeze layers, excluding word embedding layer')
-
-flags.DEFINE_bool('freeze_transformer_body', False, 'Freeze transformer body, excluding embedding and last layers')
-
-flags.DEFINE_bool('freeze_transformer_body_2', False, 'Freeze transformer body, excluding word embedding and last layers')
-
-flags.DEFINE_bool('freeze_word_embeddings', False, 'Freeze transformer body, excluding embedding and other layers')
+flags.DEFINE_string('freeze', None, 'Freeze layers: ["word_embeddings", "word_and_positional_embeddings", "layers_ww", "layers_wpw"]')
 
 
 common_flags.define_common_bert_flags()
@@ -106,11 +99,7 @@ def run_customized_training(strategy,
                             input_files,
                             train_batch_size,
                             init_checkpoint,
-                            freeze_embeddings,
-                            freeze_layers,
-                            freeze_transformer_body,
-                            freeze_transformer_body_2,
-                            freeze_word_embeddings):
+                            freeze):
   """Run BERT pretrain model training using low-level API."""
 
   train_input_fn = get_pretrain_dataset_fn(input_files, max_seq_length,
@@ -162,11 +151,7 @@ def run_customized_training(strategy,
       epochs=epochs,
       init_checkpoint=init_checkpoint,
       sub_model_export_name='pretrained/bert_model',
-      freeze_embeddings=freeze_embeddings,
-      freeze_layers=freeze_layers,
-      freeze_transformer_body=freeze_transformer_body,
-      freeze_transformer_body_2=freeze_transformer_body_2,
-      freeze_word_embeddings=freeze_word_embeddings)
+      freeze=freeze)
   logging.info('\n##Layers at End##\n')
   trained_model.summary()
   logging.info('\n##Layers of BERT##\n')
@@ -222,11 +207,7 @@ def run_bert_pretrain(strategy):
       FLAGS.input_files,
       FLAGS.train_batch_size,
       FLAGS.init_checkpoint,
-      FLAGS.freeze_embeddings,
-      FLAGS.freeze_layers,
-      FLAGS.freeze_transformer_body,
-      FLAGS.freeze_transformer_body_2,
-      FLAGS.freeze_word_embeddings)
+      FLAGS.freeze)
 
 
 def main(_):
