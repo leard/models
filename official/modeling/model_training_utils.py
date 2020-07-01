@@ -384,7 +384,7 @@ def run_customized_training_loop(
           if 'transformer_encoder' in layer.name:
             logging.info('##transformer_encoder layers freezed')
             for k, transformer_sub_layer in enumerate(bert_pretrainer_layer.layers):
-              if 'word_embeddings' not in transformer_sub_layer.name or 'position_embedding' not in transformer_sub_layer.name:
+              if 'word_embeddings' not in transformer_sub_layer.name and 'position_embedding' not in transformer_sub_layer.name:
                 model.layers[i].layers[k].trainable = False
                 logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
           elif 'classification' in layer.name:
@@ -396,7 +396,7 @@ def run_customized_training_loop(
                 transformer_encoder_layer = bert_sub_layer
                 logging.info('##transformer_encoder layers freezed')
                 for k, transformer_sub_layer in enumerate(transformer_encoder_layer.layers):
-                  if 'word_embeddings' not in transformer_sub_layer.name or 'position_embedding' not in transformer_sub_layer.name:
+                  if 'word_embeddings' not in transformer_sub_layer.name and 'position_embedding' not in transformer_sub_layer.name:
                     model.layers[i].layers[j].layers[k].trainable = False
                     logging.info(f'transformer_sub_layer: {transformer_sub_layer.name}')
               elif 'masked_lm' in bert_sub_layer.name:
