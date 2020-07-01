@@ -270,9 +270,6 @@ def run_customized_training_loop(
       else:
         logging.info('There is not a checkpoint!')
     ############################################################################
-    if freeze_embeddings and freeze_layers:
-      raise ValueError('All layers was freezed')
-
 
     if freeze == 'word_and_positional_embeddings':
       # Freeze embedding layers, except embedding layers
