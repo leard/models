@@ -413,7 +413,12 @@ def run_bert(strategy,
       checkpoint.restore(latest_checkpoint_file).assert_existing_objects_matched() #.expect_partial()
       logging.info(classifier_model.summary())
 
+
+
       classifier_model.layers[3].layers[1].set_weights(pretrain_model.layers[4].layers[3].layers[1].get_weights())
+
+      if FLAGS.freeze == 'word_and_positional_embeddings':
+          classifier_model.layers[3].layers[3].set_weights(pretrain_model.layers[4].layers[3].layers[3].get_weights())
 
       # word_embeddings_weights_class = None
       # for i, layer in enumerate(classifier_model.layers):
